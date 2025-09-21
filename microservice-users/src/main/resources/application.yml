@@ -12,12 +12,13 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop   # o validate / create-drop según tu necesidad
+      ddl-auto: create-drop   # ? perfecto para pruebas, borra y recrea
     show-sql: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
 
+# Desactiva mientras no tengas Config Server
   config:
-    import: optional:configserver:http://localhost:888
+    import: optional:configserver:http://localhost:8888
 
 eureka:
   instance:
