@@ -18,6 +18,9 @@
 
   <modules>
     <module>usuarios</module>
+    <module>agenda</module>
+    <module>citas</module>
+    <module>notificaciones</module>
   </modules>
 
   <properties>
