@@ -21,6 +21,7 @@
     <module>agenda</module>
     <module>citas</module>
     <module>notificaciones</module>
+    <module>frontend</module>
   </modules>
 
   <properties>
