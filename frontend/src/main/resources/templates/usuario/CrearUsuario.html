@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Crear Usuario</title>
+</head>
+
+<body>
+<h1>Crear Usuario</h1>
+
+<form action="/front/usuarios/crear" method="post" th:object="${usuario}">
+    Nombre: <input type="text" th:field="*{nombre}" required><br><br>
+    Apellido: <input type="text" th:field="*{apellido}" required><br><br>
+    Correo: <input type="email" th:field="*{correo}" required><br><br>
+    Password: <input type="password" th:field="*{password}" required><br><br>
+
+    Rol:
+    <select th:field="*{rol}">
+        <option value="PACIENTE">Paciente</option>
+        <option value="DOCTOR">Doctor</option>
+    </select>
+    <br><br>
+
+    <button type="submit">Continuar</button>
+</form>
+
+<br>
+<a href="/">⬅ Volver</a>
+</body>
+</html>

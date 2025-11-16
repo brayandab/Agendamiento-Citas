@@ -14,7 +14,7 @@ import javax.print.Doc;
 import java.util.List;
 
 @RestController
-@RequestMapping("/doctores")
+@RequestMapping("/usuarios/doctores")
 public class DoctorController {
 
     @Autowired

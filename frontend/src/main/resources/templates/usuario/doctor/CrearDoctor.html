@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Registrar Doctor</title>
+</head>
+
+<body>
+<h1>Registrar Doctor</h1>
+
+<form action="/front/doctores/crear" method="post" th:object="${doctor}">
+
+    <input type="hidden" th:field="*{usuario}" />
+
+    Especialidad:
+    <input type="text" th:field="*{especialidad}" required><br><br>
+
+    Teléfono:
+    <input type="number" th:field="*{telefono}" required><br><br>
+
+    Años de experiencia:
+    <input type="number" th:field="*{aniosExperiencia}" required><br><br>
+
+    Consultorio:
+    <input type="text" th:field="*{consultorio}" required><br><br>
+
+    Horario atención:
+    <input type="text" th:field="*{horarioAtencion}" required><br><br>
+
+    <button type="submit">Guardar doctor</button>
+</form>
+
+<br>
+<a href="/">⬅ Volver</a>
+</body>
+</html>
