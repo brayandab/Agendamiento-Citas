@@ -11,5 +11,6 @@ public class DoctorDTO {
     private String consultorio;
     private String horarioAtencion;
 
-    private UsuarioDTO usuario; // ← relación 1 a 1
+    private Long usuarioId;
+
 }

@@ -22,17 +22,28 @@
         a:hover {
             background-color: #0056b3;
         }
+        .usuario-info {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
 
 <h1>🏥 Sistema de Gestión EPS</h1>
+
+<div class="usuario-info">
+    Bienvenido,
+    <span th:text="${usuario.nombre} + ' ' + ${usuario.apellido}"></span><br>
+    <strong th:text="'Rol: ' + ${usuario.rol}"></strong>
+</div>
+
 <p>Seleccione una sección:</p>
 
-<a href="/front/usuarios">📄 Gestionar Usuarios</a>
-<a href="/front/doctores">👨‍⚕️ Gestionar Doctores</a>
-<a href="/front/pacientes">🧑‍🧑‍🧒 Gestionar Pacientes</a>
+<a th:href="@{/front/usuarios}">📄 Gestionar Usuarios</a>
+<a th:href="@{/front/doctores}">👨‍⚕️ Gestionar Doctores</a>
+<a th:href="@{/front/pacientes}">🧑‍🧑‍🧒 Gestionar Pacientes</a>
 
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.eps.usuarios.controllers;
 
 import com.eps.usuarios.dtos.PacienteRequestDTO;
 import com.eps.usuarios.models.Paciente;
+import com.eps.usuarios.models.Usuario;
 import com.eps.usuarios.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios/pacientes")
+@CrossOrigin(origins = "http://localhost:8085")
 public class PacienteController {
 
     @Autowired
@@ -36,4 +38,8 @@ public class PacienteController {
     public void eliminarPorId(@PathVariable Long id){
         pacienteService.eliminarPorId(id);
     }
+
+    /*@GetMapping("/correo/{correo}")
+    public Paciente buscarPorCorreo(@PathVariable String correo){ return pacienteService.buscarPorCorreo(correo);}
+*/
 }

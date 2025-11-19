@@ -18,30 +18,33 @@ public class UsuarioFrontendController {
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("usuarios", client.listarUsuarios());
-        return "usuarios/lista";
+        return "usuario/ListaUsuarios";
     }
 
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
         model.addAttribute("usuario", new UsuarioRequestDTO());
-        return "usuarios/crear";
+        return "usuario/CrearUsuario"; // EXACTO A TU ESTRUCTURA
     }
 
     @PostMapping("/crear")
     public String crear(@ModelAttribute UsuarioRequestDTO dto) {
-        // 1. Crear usuario primero
-        client.crearUsuario(dto);
 
-        // 2. Según el rol, redirigir al formulario correcto
-        if (dto.getRol().equalsIgnoreCase("PACIENTE")) {
-            return "redirect:/front/pacientes/crear?correo=" + dto.getCorreo();
+        UsuarioDTO usuarioCreado = client.crearUsuario(dto);
+
+        // Guardar id y correo en redirect
+        Long idUsuario = usuarioCreado.getId();
+        String correo = usuarioCreado.getCorreo();
+        String rol = usuarioCreado.getRol().toUpperCase();
+
+        if (rol.equals("PACIENTE")) {
+            return "redirect:/front/pacientes/crear?usuarioId=" + idUsuario;
+        }
+        if (rol.equals("DOCTOR")) {
+            return "redirect:/front/doctores/crear?usuarioId=" + idUsuario;
         }
 
-        if (dto.getRol().equalsIgnoreCase("DOCTOR")) {
-            return "redirect:/front/doctores/crear?correo=" + dto.getCorreo();
-        }
-
-        return "redirect:/front/usuarios"; // fallback
+        return "redirect:/front/usuarios";
     }
 
 
@@ -49,12 +52,6 @@ public class UsuarioFrontendController {
     public String detalle(@PathVariable Long id, Model model) {
         UsuarioDTO usuario = client.findById(id);
         model.addAttribute("usuario", usuario);
-        return "usuarios/detalle";
+        return "usuario/DetalleUsuario";
     }
-
-    /*@GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id) {
-        client.eliminarUsuario(id);
-        return "redirect:/front/usuarios";
-    }*/
 }

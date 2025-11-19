@@ -11,17 +11,18 @@
 * Esto para no tener que crear diferentes Client por cada endidad que se creo.
 * */
 
-
 package com.frontend.clients;
 
 import com.frontend.dtos.UsuarioDTO;
 import com.frontend.dtos.PacienteDTO;
 import com.frontend.dtos.DoctorDTO;
 
+import com.frontend.dtos.request.LoginRequestDTO;
 import com.frontend.dtos.request.UsuarioRequestDTO;
 import com.frontend.dtos.request.PacienteRequestDTO;
 import com.frontend.dtos.request.DoctorRequestDTO;
 
+import com.frontend.dtos.response.LoginResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,14 @@ public interface UsuariosClient {
 
     @PostMapping("/usuarios")
     UsuarioDTO crearUsuario(@RequestBody UsuarioRequestDTO dto);
+
+    @GetMapping("/usuarios/correo/{correo}")
+    UsuarioDTO buscarPorCorreo(@PathVariable String correo);
+
+    // ----- LOGIN -----
+    @PostMapping("/usuarios/login")
+    LoginResponseDTO login(@RequestBody LoginRequestDTO request);
+
 
     // ----- DOCTORES -----
     @GetMapping("/usuarios/doctores")
@@ -68,6 +77,4 @@ public interface UsuariosClient {
 
     @DeleteMapping("/usuarios/pacientes/{id}")
     void eliminarPaciente(@PathVariable Long id);
-
-
 }

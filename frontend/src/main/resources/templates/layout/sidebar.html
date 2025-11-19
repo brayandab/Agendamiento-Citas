@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- FRAGMENTO DE LA BARRA LATERAL -->
+<div th:fragment="sidebar">
+
+    <style>
+
+        /* === SIDEBAR DESPLEGABLE === */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 70px;                     /* 📌 Contraída */
+            height: 100vh;
+            background: #1e3a8a;
+            padding: 20px 10px;
+            color: white;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transition: width 0.25s ease;
+        }
+
+        /* Expandida */
+        .sidebar:hover {
+            width: 240px;
+        }
+
+        /* TÍTULO */
+        .sidebar h3 {
+            font-weight: bold;
+            margin-bottom: 25px;
+            white-space: nowrap;
+
+            /* Desaparece cuando está contraída */
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Cuando se expande: aparece */
+        .sidebar:hover h3 {
+            opacity: 1;
+        }
+
+        /* ENLACES */
+        .sidebar a,
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .sidebar a:hover,
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* SOLO ÍCONO CUANDO ESTÁ CONTRAÍDA */
+        .sidebar span {
+            opacity: 0;                  /* Texto invisible */
+            transition: opacity 0.25s ease;
+        }
+
+        /* Texto aparece solo cuando está expandida */
+        .sidebar:hover span {
+            opacity: 1;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+    </style>
+
+    <div class="sidebar">
+
+        <h3 th:text="${panelTitulo}">Panel</h3>
+
+
+        <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
+        <a href="/front/citas">📅 <span>Mis Citas</span></a>
+        <a href="/front/historial">📄 <span>Historial Médico</span></a>
+        <a href="/front/medicamentos">💊 <span>Mis Medicamentos</span></a>
+
+        <hr style="border-color: rgba(255,255,255,0.3);">
+
+        <!-- BOTÓN REAL DE CERRAR SESIÓN -->
+        <div class="logout-btn" onclick="cerrarSesion()">❌ <span>Cerrar Sesión</span></div>
+    </div>
+
+    <script>
+        function cerrarSesion() {
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = "/";
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

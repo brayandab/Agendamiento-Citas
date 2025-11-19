@@ -59,4 +59,8 @@ public class PacienteService {
         pacienteRepository.delete(paciente);
         System.out.println(" Paciente y usuario eliminados correctamente con ID: " + id);
     }
+
+    /*public Paciente buscarPorCorreo(String correo) {
+        return pacienteRepository.buscarPorCorreo(correo);
+    }*/
 }

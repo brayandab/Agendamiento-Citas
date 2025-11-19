@@ -18,17 +18,22 @@ public class DoctorFrontendController {
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("doctores", client.listarDoctores());
-        return "doctores/lista";
+        // Debes crear esta vista: templates/usuario/doctor/lista.html
+        return "usuario/doctor/lista";
     }
 
     @GetMapping("/crear")
-    public String mostrarFormulario(Model model) {
-        model.addAttribute("doctor", new DoctorRequestDTO());
-        return "doctores/crear";
+    public String mostrarFormulario(@RequestParam Long usuarioId, Model model) {
+        DoctorRequestDTO dto = new DoctorRequestDTO();
+        dto.setUsuarioId(usuarioId);
+
+        model.addAttribute("doctor", dto);
+        return "doctor/crear";
     }
 
     @PostMapping("/crear")
     public String crearDoctor(@ModelAttribute DoctorRequestDTO dto) {
+
         client.crearDoctor(dto);
         return "redirect:/front/doctores";
     }
@@ -37,7 +42,8 @@ public class DoctorFrontendController {
     public String detalle(@PathVariable Long id, Model model) {
         DoctorDTO doctor = client.buscarDoctorPorId(id);
         model.addAttribute("doctor", doctor);
-        return "doctores/detalle";
+        // Debes crear esta vista: templates/usuario/doctor/detalle.html
+        return "usuario/doctor/detalle";
     }
 
     @GetMapping("/eliminar/{id}")

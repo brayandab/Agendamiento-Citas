@@ -26,6 +26,9 @@
     Horario atención:
     <input type="text" th:field="*{horarioAtencion}" required><br><br>
 
+    <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+
+
     <button type="submit">Guardar doctor</button>
 </form>
 

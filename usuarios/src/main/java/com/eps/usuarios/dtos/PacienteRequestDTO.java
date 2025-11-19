@@ -11,7 +11,7 @@ public class PacienteRequestDTO {
     private String documento;
     private String telefono;
     private String direccion;
-    //@JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaNacimiento;
     private String eps;
     private Long usuarioId;

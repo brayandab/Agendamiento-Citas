@@ -15,6 +15,7 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
@@ -26,12 +27,13 @@ public class UsuarioService {
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setPassword(dto.getPassword());
-        usuario.setCorreo(dto.getCorreo());
+        usuario.setCorreo(dto.getCorreo().trim().toLowerCase());
         usuario.setRol(dto.getRol());
 
-
+        // Encriptar la contraseña
         String hash = passwordEncoder.encode(usuario.getPassword());
         usuario.setPassword(hash);
+
         return usuarioRepository.save(usuario);
     }
 
@@ -42,5 +44,16 @@ public class UsuarioService {
     public void eliminarPorId(Long id){
         usuarioRepository.deleteById(id);
         System.out.println("Usuario con id "+id+" fue eliminado");
+    }
+
+    public Usuario buscarPorCorreo(String correo){
+        String limpio = correo.trim().toLowerCase();
+        System.out.println("Correo recibido normalizado: >" + limpio + "<");
+        return usuarioRepository.findByCorreo(limpio);
+    }
+
+    // 🔥🔥🔥 MÉTODO NUEVO PARA VALIDAR CONTRASEÑA
+    public boolean validarPassword(String rawPassword, String hashedPassword) {
+        return passwordEncoder.matches(rawPassword, hashedPassword);
     }
 }

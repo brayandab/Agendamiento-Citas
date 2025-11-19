@@ -11,5 +11,5 @@ public class DoctorRequestDTO {
     private String consultorio;
     private String horarioAtencion;
 
-    private UsuarioRequestDTO usuario;
+    private Long usuarioId;
 }
