@@ -10,18 +10,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController {
 
     @GetMapping("/admin")
-    public String adminHome() {
+    public String adminHome(Model model) {
+        model.addAttribute("rol", "ADMIN");
+        model.addAttribute("panelTitulo", "Panel Administrador");
         return "logueo/home-admin";
     }
 
     @GetMapping("/doctor")
     public String doctorHome(Model model) {
+        model.addAttribute("rol", "DOCTOR");
         model.addAttribute("panelTitulo", "Panel Doctor");
         return "logueo/home-doctor";
     }
 
     @GetMapping("/paciente")
     public String homePaciente(Model model) {
+        model.addAttribute("rol", "PACIENTE");
         model.addAttribute("panelTitulo", "Panel Paciente");
         return "logueo/home-paciente";
     }

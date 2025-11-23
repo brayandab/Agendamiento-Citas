@@ -2,18 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!-- FRAGMENTO DE LA BARRA LATERAL -->
 <div th:fragment="sidebar">
 
     <style>
-
-        /* === SIDEBAR DESPLEGABLE === */
-
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 70px;                     /* 📌 Contraída */
+            width: 70px;
             height: 100vh;
             background: #1e3a8a;
             padding: 20px 10px;
@@ -23,28 +19,22 @@
             transition: width 0.25s ease;
         }
 
-        /* Expandida */
         .sidebar:hover {
             width: 240px;
         }
 
-        /* TÍTULO */
         .sidebar h3 {
             font-weight: bold;
             margin-bottom: 25px;
             white-space: nowrap;
-
-            /* Desaparece cuando está contraída */
             opacity: 0;
             transition: opacity 0.2s ease;
         }
 
-        /* Cuando se expande: aparece */
         .sidebar:hover h3 {
             opacity: 1;
         }
 
-        /* ENLACES */
         .sidebar a,
         .logout-btn {
             display: flex;
@@ -65,13 +55,11 @@
             background: rgba(255,255,255,0.15);
         }
 
-        /* SOLO ÍCONO CUANDO ESTÁ CONTRAÍDA */
         .sidebar span {
-            opacity: 0;                  /* Texto invisible */
+            opacity: 0;
             transition: opacity 0.25s ease;
         }
 
-        /* Texto aparece solo cuando está expandida */
         .sidebar:hover span {
             opacity: 1;
         }
@@ -84,17 +72,33 @@
 
     <div class="sidebar">
 
+        <!-- Muestra el título correspondiente al rol -->
         <h3 th:text="${panelTitulo}">Panel</h3>
 
+        <!-- 🔹 OPCIONES PARA PACIENTE -->
+        <div th:if="${rol == 'PACIENTE'}">
+            <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
+            <a href="/front/citas">📅 <span>Mis Citas</span></a>
+            <a href="/front/historial">📄 <span>Historial Médico</span></a>
+            <a href="/front/medicamentos">💊 <span>Mis Medicamentos</span></a>
+        </div>
 
-        <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
-        <a href="/front/citas">📅 <span>Mis Citas</span></a>
-        <a href="/front/historial">📄 <span>Historial Médico</span></a>
-        <a href="/front/medicamentos">💊 <span>Mis Medicamentos</span></a>
+        <!-- 🔹 OPCIONES PARA DOCTOR -->
+        <div th:if="${rol == 'DOCTOR'}">
+            <a href="/front/citas/doctor">📅 <span>Mis Citas</span></a>
+            <a href="/front/pacientes">🧑‍⚕️ <span>Pacientes Atendidos</span></a>
+            <a href="/front/historial/doctor">📄 <span>Historial Clínico</span></a>
+        </div>
+
+        <!-- 🔹 OPCIONES PARA ADMIN -->
+        <div th:if="${rol == 'ADMIN'}">
+            <a href="/front/usuarios">👤 <span>Gestionar Usuarios</span></a>
+            <a href="/front/reportes">📊 <span>Reportes</span></a>
+        </div>
 
         <hr style="border-color: rgba(255,255,255,0.3);">
 
-        <!-- BOTÓN REAL DE CERRAR SESIÓN -->
+        <!-- Botón de cerrar sesión -->
         <div class="logout-btn" onclick="cerrarSesion()">❌ <span>Cerrar Sesión</span></div>
     </div>
 

@@ -34,16 +34,13 @@ public class LoginController {
 
             switch (rol) {
                 case "ADMIN":
-                    return "redirect:/home/admin";
-
+                    return "redirect:/home/admin?rol=ADMIN";
                 case "DOCTOR":
-                    return "redirect:/home/doctor";
-
+                    return "redirect:/home/doctor?rol=DOCTOR";
                 case "PACIENTE":
-                    return "redirect:/home/paciente";
-
+                    return "redirect:/home/paciente?rol=PACIENTE";
                 default:
-                    model.addAttribute("error", "El rol del usuario no es válido");
+                    model.addAttribute("error", "Rol inválido");
                     return "login";
             }
 
@@ -52,4 +49,5 @@ public class LoginController {
             return "login";
         }
     }
+
 }
