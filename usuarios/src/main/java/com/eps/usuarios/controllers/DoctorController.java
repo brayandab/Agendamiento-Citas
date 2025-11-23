@@ -41,4 +41,9 @@ public class DoctorController {
         doctorService.deleteById(id);
     }
 
+    @GetMapping("/especialidad/{especialidad}")
+    public List<Doctor> findByEspecialidad(@PathVariable String especialidad) {
+        return doctorService.findByEspecialidad(especialidad);
+    }
+
 }

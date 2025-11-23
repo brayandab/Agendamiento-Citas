@@ -1,0 +1,35 @@
+package com.frontend.clients;
+
+import com.frontend.dtos.request.cita.CitaRequestDTO;
+import com.frontend.dtos.response.citas.CitaDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@FeignClient(
+        name = "citas",
+        url = "http://localhost:8083"
+)
+public interface CitasClient {
+
+    @GetMapping("/citas")
+    List<CitaDTO> listarCitas();
+
+    @PostMapping("/citas")
+    CitaDTO crearCita(@RequestBody CitaRequestDTO dto);
+
+    @GetMapping("/citas/{id}")
+    CitaDTO buscarCitaPorId(@PathVariable("id") Long id);
+
+    @DeleteMapping("/citas/{id}")
+    void eliminarCita(@PathVariable("id") Long id);
+
+    // 👉 Citas por paciente
+    @GetMapping("/citas/paciente/{pacienteId}")
+    List<CitaDTO> citasPorPaciente(@PathVariable("pacienteId") Long pacienteId);
+
+    // 👉 Citas por doctor
+    @GetMapping("/citas/doctor/{doctorId}")
+    List<CitaDTO> citasPorDoctor(@PathVariable("doctorId") Long doctorId);
+}

@@ -1,4 +1,4 @@
-package com.frontend.dtos;
+package com.frontend.dtos.response.usuarios;
 
 import lombok.Data;
 

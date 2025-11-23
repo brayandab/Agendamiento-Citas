@@ -1,8 +1,8 @@
 package com.frontend.controller.usuarios;
 
 import com.frontend.clients.UsuariosClient;
-import com.frontend.dtos.PacienteDTO;
-import com.frontend.dtos.request.PacienteRequestDTO;
+import com.frontend.dtos.response.usuarios.PacienteDTO;
+import com.frontend.dtos.request.usuarios.PacienteRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

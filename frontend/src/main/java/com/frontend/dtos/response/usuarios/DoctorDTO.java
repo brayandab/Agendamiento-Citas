@@ -1,10 +1,10 @@
-package com.frontend.dtos.request;
-
+package com.frontend.dtos.response.usuarios;
 
 import lombok.Data;
 
 @Data
-public class DoctorRequestDTO {
+public class DoctorDTO {
+    private Long id;
     private String especialidad;
     private Long telefono;
     private int aniosExperiencia;
@@ -12,4 +12,5 @@ public class DoctorRequestDTO {
     private String horarioAtencion;
 
     private Long usuarioId;
+
 }

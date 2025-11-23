@@ -2,8 +2,12 @@ package com.frontend.services;
 
 
 import com.frontend.clients.UsuariosClient;
-import com.frontend.dtos.*;
-import com.frontend.dtos.request.*;
+import com.frontend.dtos.request.usuarios.DoctorRequestDTO;
+import com.frontend.dtos.request.usuarios.PacienteRequestDTO;
+import com.frontend.dtos.request.usuarios.UsuarioRequestDTO;
+import com.frontend.dtos.response.usuarios.DoctorDTO;
+import com.frontend.dtos.response.usuarios.PacienteDTO;
+import com.frontend.dtos.response.usuarios.UsuarioDTO;
 import org.springframework.stereotype.Service;
 import java.util.List;
 

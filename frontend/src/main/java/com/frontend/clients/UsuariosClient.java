@@ -10,19 +10,19 @@
 *
 * Esto para no tener que crear diferentes Client por cada endidad que se creo.
 * */
-
 package com.frontend.clients;
 
-import com.frontend.dtos.UsuarioDTO;
-import com.frontend.dtos.PacienteDTO;
-import com.frontend.dtos.DoctorDTO;
+import com.frontend.dtos.response.usuarios.UsuarioDTO;
+import com.frontend.dtos.response.usuarios.PacienteDTO;
+import com.frontend.dtos.response.usuarios.DoctorDTO;
 
 import com.frontend.dtos.request.LoginRequestDTO;
-import com.frontend.dtos.request.UsuarioRequestDTO;
-import com.frontend.dtos.request.PacienteRequestDTO;
-import com.frontend.dtos.request.DoctorRequestDTO;
+import com.frontend.dtos.request.usuarios.UsuarioRequestDTO;
+import com.frontend.dtos.request.usuarios.PacienteRequestDTO;
+import com.frontend.dtos.request.usuarios.DoctorRequestDTO;
 
 import com.frontend.dtos.response.LoginResponseDTO;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,25 +34,35 @@ import java.util.List;
 )
 public interface UsuariosClient {
 
-    // ----- USUARIOS -----
+    // ============================================================
+    // 🔵 USUARIOS
+    // ============================================================
+
     @GetMapping("/usuarios")
     List<UsuarioDTO> listarUsuarios();
 
     @GetMapping("/usuarios/{id}")
-    UsuarioDTO findById(@PathVariable Long id);
+    UsuarioDTO findById(@PathVariable("id") Long id);
 
     @PostMapping("/usuarios")
     UsuarioDTO crearUsuario(@RequestBody UsuarioRequestDTO dto);
 
     @GetMapping("/usuarios/correo/{correo}")
-    UsuarioDTO buscarPorCorreo(@PathVariable String correo);
+    UsuarioDTO buscarPorCorreo(@PathVariable("correo") String correo);
 
-    // ----- LOGIN -----
+
+    // ============================================================
+    // 🔐 LOGIN
+    // ============================================================
+
     @PostMapping("/usuarios/login")
     LoginResponseDTO login(@RequestBody LoginRequestDTO request);
 
 
-    // ----- DOCTORES -----
+    // ============================================================
+    // 🟣 DOCTORES
+    // ============================================================
+
     @GetMapping("/usuarios/doctores")
     List<DoctorDTO> listarDoctores();
 
@@ -60,12 +70,20 @@ public interface UsuariosClient {
     DoctorDTO crearDoctor(@RequestBody DoctorRequestDTO dto);
 
     @GetMapping("/usuarios/doctores/{id}")
-    DoctorDTO buscarDoctorPorId(@PathVariable Long id);
+    DoctorDTO buscarDoctorPorId(@PathVariable("id") Long id);
 
     @DeleteMapping("/usuarios/doctores/{id}")
-    void eliminarDoctor(@PathVariable Long id);
+    void eliminarDoctor(@PathVariable("id") Long id);
 
-    // ----- PACIENTES -----
+    @GetMapping("/usuarios/doctores/especialidad/{especialidad}")
+    List<DoctorDTO> buscarDoctoresPorEspecialidad(
+            @PathVariable("especialidad") String especialidad
+    );
+
+    // ============================================================
+    // 🟢 PACIENTES
+    // ============================================================
+
     @GetMapping("/usuarios/pacientes")
     List<PacienteDTO> listarPacientes();
 
@@ -73,8 +91,9 @@ public interface UsuariosClient {
     PacienteDTO crearPaciente(@RequestBody PacienteRequestDTO dto);
 
     @GetMapping("/usuarios/pacientes/{id}")
-    PacienteDTO buscarPacientePorId(@PathVariable Long id);
+    PacienteDTO buscarPacientePorId(@PathVariable("id") Long id);
 
     @DeleteMapping("/usuarios/pacientes/{id}")
-    void eliminarPaciente(@PathVariable Long id);
+    void eliminarPaciente(@PathVariable("id") Long id);
+
 }

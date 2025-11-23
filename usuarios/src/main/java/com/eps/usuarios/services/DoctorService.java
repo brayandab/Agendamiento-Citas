@@ -53,4 +53,10 @@ public class DoctorService {
         doctorRepository.deleteById(id);
         System.out.println(" Doctor y usuario eliminados correctamente con ID: " + id);
     }
+
+    public List<Doctor> findByEspecialidad(String especialidad) {
+        return doctorRepository.findByEspecialidadIgnoreCase(especialidad);
+    }
+
+
 }

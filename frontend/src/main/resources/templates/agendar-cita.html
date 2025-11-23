@@ -89,66 +89,63 @@
     const horarioSelect = document.getElementById("horario");
     const btnConfirmar = document.getElementById("btnConfirmar");
 
-    // ==== DOCTORES POR ESPECIALIDAD (SIMULACIÓN) ====
-    const doctoresData = {
-        MEDICINA_GENERAL: [
-            { id: 1, nombre: "Dr. Luis Gómez" },
-            { id: 2, nombre: "Dra. Ana Ruiz" }
-        ],
-        ODONTOLOGIA: [
-            { id: 3, nombre: "Dra. Camila Torres" }
-        ],
-        PEDIATRIA: [
-            { id: 4, nombre: "Dr. Andrés Villalba" }
-        ],
-        DERMATOLOGIA: [
-            { id: 5, nombre: "Dra. María Fernanda" }
-        ]
-    };
-
-    const horariosData = [
-        "08:00 AM", "09:00 AM", "10:00 AM", "02:00 PM", "03:00 PM"
-    ];
-
-    // CUANDO ELIJA ESPECIALIDAD → cargar doctores
+    // CUANDO SELECCIONA UNA ESPECIALIDAD → obtener doctores del backend
     especialidadSelect.addEventListener("change", () => {
         const esp = especialidadSelect.value;
-        doctorSelect.innerHTML = "";
 
-        if (esp === "") {
+        doctorSelect.innerHTML = "";
+        horariosBox.style.display = "none";
+        btnConfirmar.style.display = "none";
+
+        if (!esp) {
             doctoresBox.style.display = "none";
-            horariosBox.style.display = "none";
-            btnConfirmar.style.display = "none";
             return;
         }
 
-        doctoresData[esp].forEach(doc => {
-            const option = document.createElement("option");
-            option.value = doc.id;
-            option.textContent = doc.nombre;
-            doctorSelect.appendChild(option);
-        });
+        fetch(`/front/citas/doctores?especialidad=${esp}`)
+            .then(r => r.json())
+            .then(doctores => {
+                doctores.forEach(doc => {
+                    const option = document.createElement("option");
+                    option.value = doc.id;
+                    option.textContent = doc.usuario.nombre + " " + doc.usuario.apellido;
+                    doctorSelect.appendChild(option);
+                });
 
-        doctoresBox.style.display = "block";
+                doctoresBox.style.display = "block";
+            })
+            .catch(() => alert("Error cargando doctores"));
+    });
+
+    // CUANDO SELECCIONA DOCTOR → obtener agenda del backend
+    doctorSelect.addEventListener("change", () => {
+
+        const doctorId = doctorSelect.value;
+        const fecha = new Date().toISOString().split("T")[0]; // Fecha actual por defecto
+
+        horarioSelect.innerHTML = "";
         horariosBox.style.display = "none";
         btnConfirmar.style.display = "none";
+
+        fetch(`/front/citas/agenda?doctorId=${doctorId}&fecha=${fecha}`)
+            .then(r => r.json())
+            .then(horas => {
+
+                horas.forEach(h => {
+                    const option = document.createElement("option");
+                    option.value = h;
+                    option.textContent = h;
+                    horarioSelect.appendChild(option);
+                });
+
+                horariosBox.style.display = "block";
+                btnConfirmar.style.display = "block";
+            })
+            .catch(() => alert("Error cargando horarios"));
     });
 
-    // CUANDO ELIJA DOCTOR → mostrar horarios
-    doctorSelect.addEventListener("change", () => {
-        horarioSelect.innerHTML = "";
-
-        horariosData.forEach(h => {
-            const option = document.createElement("option");
-            option.value = h;
-            option.textContent = h;
-            horarioSelect.appendChild(option);
-        });
-
-        horariosBox.style.display = "block";
-        btnConfirmar.style.display = "block";
-    });
 </script>
+
 
 </body>
 </html>

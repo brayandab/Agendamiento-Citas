@@ -1,4 +1,4 @@
-package com.frontend.dtos.request;
+package com.frontend.dtos.request.usuarios;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
