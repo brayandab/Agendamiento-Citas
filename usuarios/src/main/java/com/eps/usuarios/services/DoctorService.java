@@ -5,6 +5,7 @@ import com.eps.usuarios.dtos.PacienteRequestDTO;
 import com.eps.usuarios.models.Doctor;
 import com.eps.usuarios.models.Paciente;
 import com.eps.usuarios.models.Usuario;
+import com.eps.usuarios.models.enums.Especialidad;
 import com.eps.usuarios.repository.DoctorRepository;
 import com.eps.usuarios.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,8 @@ public class DoctorService {
         System.out.println(" Doctor y usuario eliminados correctamente con ID: " + id);
     }
 
-    public List<Doctor> findByEspecialidad(String especialidad) {
-        return doctorRepository.findByEspecialidadIgnoreCase(especialidad);
+    public List<Doctor> findByEspecialidad(Especialidad especialidad) {
+        return doctorRepository.findByEspecialidad(especialidad);
     }
 
 

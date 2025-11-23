@@ -1,38 +1,94 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Registrar Doctor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            min-height: 100vh;
+            padding: 40px;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .form-box {
+            background: white;
+            color: #444;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+        }
+        .btn-main {
+            background: #0284c7;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-main:hover {
+            background: #0369a1;
+        }
+    </style>
 </head>
 
 <body>
-<h1>Registrar Doctor</h1>
 
-<form action="/front/doctores/crear" method="post" th:object="${doctor}">
+<div class="title">🩺 Registrar Doctor</div>
 
-    <input type="hidden" th:field="*{usuario}" />
+<div class="container col-md-6">
+    <div class="form-box">
 
-    Especialidad:
-    <input type="text" th:field="*{especialidad}" required><br><br>
+        <form action="/front/doctores/crear" method="post" th:object="${doctor}">
 
-    Teléfono:
-    <input type="number" th:field="*{telefono}" required><br><br>
+            <!-- ESPECIALIDAD -->
+            <div class="mb-3">
+                <label class="form-label">Especialidad</label>
+                <select class="form-select" th:field="*{especialidad}" required>
+                    <option value="">-- Seleccione --</option>
+                    <option value="MEDICINA_GENERAL">Medicina General</option>
+                    <option value="ODONTOLOGIA">Odontología</option>
+                    <option value="PEDIATRIA">Pediatría</option>
+                    <option value="DERMATOLOGIA">Dermatología</option>
+                </select>
+            </div>
 
-    Años de experiencia:
-    <input type="number" th:field="*{aniosExperiencia}" required><br><br>
+            <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="number" class="form-control" th:field="*{telefono}" required>
+            </div>
 
-    Consultorio:
-    <input type="text" th:field="*{consultorio}" required><br><br>
+            <div class="mb-3">
+                <label class="form-label">Años de experiencia</label>
+                <input type="number" class="form-control" th:field="*{aniosExperiencia}" required>
+            </div>
 
-    Horario atención:
-    <input type="text" th:field="*{horarioAtencion}" required><br><br>
+            <div class="mb-3">
+                <label class="form-label">Consultorio</label>
+                <input type="text" class="form-control" th:field="*{consultorio}" required>
+            </div>
 
-    <input type="hidden" name="usuarioId" th:value="${usuarioId}">
+            <div class="mb-3">
+                <label class="form-label">Horario de atención</label>
+                <input type="text" class="form-control" th:field="*{horarioAtencion}" required>
+            </div>
 
+            <!-- Campo que faltaba: el usuarioId dentro del DTO -->
+            <input type="hidden" th:field="*{usuarioId}">
 
-    <button type="submit">Guardar doctor</button>
-</form>
+            <button type="submit" class="btn btn-main w-100 mt-3">Guardar doctor</button>
+        </form>
 
-<br>
-<a href="/">⬅ Volver</a>
+        <a href="/" class="btn btn-light w-100 mt-3">⬅ Volver</a>
+
+    </div>
+</div>
+
 </body>
 </html>

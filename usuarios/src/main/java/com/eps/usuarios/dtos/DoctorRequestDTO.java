@@ -1,5 +1,6 @@
 package com.eps.usuarios.dtos;
 
+import com.eps.usuarios.models.enums.Especialidad;
 import jakarta.persistence.Column;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 public class DoctorRequestDTO {
 
 
-    private String especialidad;
+    private Especialidad especialidad;
 
     private Long telefono;
 

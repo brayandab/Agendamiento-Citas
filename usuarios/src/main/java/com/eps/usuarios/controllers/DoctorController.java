@@ -4,6 +4,7 @@ import com.eps.usuarios.dtos.DoctorRequestDTO;
 import com.eps.usuarios.dtos.PacienteRequestDTO;
 import com.eps.usuarios.models.Doctor;
 import com.eps.usuarios.models.Paciente;
+import com.eps.usuarios.models.enums.Especialidad;
 import com.eps.usuarios.services.DoctorService;
 import com.eps.usuarios.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ public class DoctorController {
     }
 
     @GetMapping("/especialidad/{especialidad}")
-    public List<Doctor> findByEspecialidad(@PathVariable String especialidad) {
+    public List<Doctor> findByEspecialidad(@PathVariable Especialidad especialidad) {
+        System.out.println("Doctores: "+especialidad);
         return doctorService.findByEspecialidad(especialidad);
     }
 

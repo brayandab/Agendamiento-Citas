@@ -1,6 +1,7 @@
 package com.eps.usuarios.models;
 
 
+import com.eps.usuarios.models.enums.Especialidad;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,8 @@ public class Doctor {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String especialidad;
+    @Enumerated(EnumType.STRING)
+    private Especialidad especialidad;
 
     @Column(nullable = false, length = 15)
     private Long telefono;

@@ -10,7 +10,6 @@ public class DoctorDTO {
     private int aniosExperiencia;
     private String consultorio;
     private String horarioAtencion;
-
-    private Long usuarioId;
+    private UsuarioDTO usuario;
 
 }

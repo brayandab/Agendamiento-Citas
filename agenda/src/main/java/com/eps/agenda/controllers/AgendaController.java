@@ -43,4 +43,14 @@ public class AgendaController {
         agendaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+//    @GetMapping("/disponibles")
+//    @ResponseBody
+//    public List<AgendarDTO> obtenerHorariosDisponibles(
+//            @RequestParam Long medicoId,
+//            @RequestParam String fecha) {
+//
+//        return agendaService.obtenerDisponiblesPorMedicoYFecha(medicoId, fecha);
+//    }
+
 }
