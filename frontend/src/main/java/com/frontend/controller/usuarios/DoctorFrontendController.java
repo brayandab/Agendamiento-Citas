@@ -1,8 +1,11 @@
 package com.frontend.controller.usuarios;
 
 import com.frontend.clients.UsuariosClient;
+import com.frontend.clients.AgendaClient;
 import com.frontend.dtos.response.usuarios.DoctorDTO;
 import com.frontend.dtos.request.usuarios.DoctorRequestDTO;
+import com.frontend.dtos.request.agenda.AgendaRequestDTO;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +17,9 @@ public class DoctorFrontendController {
 
     @Autowired
     private UsuariosClient client;
+
+    @Autowired
+    private AgendaClient agendaClient;
 
     @GetMapping
     public String listar(Model model) {
@@ -32,9 +38,8 @@ public class DoctorFrontendController {
 
     @PostMapping("/crear")
     public String crearDoctor(@ModelAttribute DoctorRequestDTO dto) {
-
         client.crearDoctor(dto);
-        return "login";  // 🔥 Redirige al login
+        return "login";
     }
 
     @GetMapping("/{id}")
@@ -48,5 +53,43 @@ public class DoctorFrontendController {
     public String eliminar(@PathVariable Long id) {
         client.eliminarDoctor(id);
         return "redirect:/front/doctores";
+    }
+
+    @GetMapping("/disponibilidad")
+    public String disponibilidadFormulario(HttpSession session, Model model) {
+
+        Long doctorId = (Long) session.getAttribute("doctorId");
+
+        if (doctorId == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("doctorId", doctorId);
+        return "usuario/doctor/AgendarDoctor";
+    }
+
+    @PostMapping("/disponibilidad/guardar")
+    public String guardarDisponibilidad(
+            @RequestParam String fecha,
+            @RequestParam String horaInicio,
+            @RequestParam String horaFin,
+            HttpSession session
+    ) {
+        Long doctorId = (Long) session.getAttribute("doctorId");
+
+        if (doctorId == null) {
+            return "redirect:/login";
+        }
+
+        AgendaRequestDTO dto = new AgendaRequestDTO();
+        dto.setMedicoId(doctorId);
+        dto.setFecha(fecha);
+        dto.setHoraInicio(horaInicio);
+        dto.setHoraFin(horaFin);
+        dto.setDisponible(true);
+
+        agendaClient.crearFranjas(dto);
+
+        return "redirect:/front/doctores/disponibilidad?success";
     }
 }

@@ -10,5 +10,5 @@ public class CitaDTO {
     private String especialidad;
     private String fecha;
     private String hora;
-    private String motivo;
+    private String estado;
 }

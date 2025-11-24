@@ -58,6 +58,10 @@ public class DoctorService {
     public List<Doctor> findByEspecialidad(Especialidad especialidad) {
         return doctorRepository.findByEspecialidad(especialidad);
     }
+    public Doctor findByUsuarioId(Long usuarioId) {
+        return doctorRepository.findByUsuarioId(usuarioId)
+                .orElse(null);
+    }
 
 
 }

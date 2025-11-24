@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class AgendaRequestDTO {
-
     private Long medicoId;
     private String fecha;
     private String horaInicio;

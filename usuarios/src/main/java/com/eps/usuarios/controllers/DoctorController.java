@@ -48,4 +48,14 @@ public class DoctorController {
         return doctorService.findByEspecialidad(especialidad);
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<Doctor> findByUsuarioId(@PathVariable Long usuarioId) {
+        Doctor doctor = doctorService.findByUsuarioId(usuarioId);
+        if (doctor == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(doctor);
+    }
+
+
 }

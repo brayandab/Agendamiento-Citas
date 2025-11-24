@@ -3,9 +3,11 @@ package com.frontend.controller.citas;
 import com.frontend.clients.CitasClient;
 import com.frontend.clients.UsuariosClient;
 import com.frontend.dtos.request.cita.CitaRequestDTO;
+import com.frontend.dtos.response.citas.CitaDTO;
 import com.frontend.dtos.response.usuarios.DoctorDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -21,45 +23,49 @@ public class CitaController {
     @Autowired
     private CitasClient citasClient;
 
-    // Página de agendar cita
+    // Página del formulario de agendar cita
     @GetMapping("/agendar")
-    public String agendar() {
+    public String agendar(Model model, @SessionAttribute("usuarioId") Long usuarioId) {
+        // Pasamos el pacienteId al frontend
+        model.addAttribute("pacienteId", usuarioId);
         return "agendar-cita";
     }
 
-    // Endpoint para obtener doctores por especialidad
+    // 🔹 Obtener doctores por especialidad (LLAMADO DESDE EL HTML)
     @GetMapping("/doctores")
     @ResponseBody
     public List<DoctorDTO> listarDoctores(@RequestParam String especialidad) {
         if (especialidad == null || especialidad.isEmpty()) {
-            return Collections.emptyList(); // No devuelve nada si no hay especialidad
+            return Collections.emptyList();
         }
 
         List<DoctorDTO> doctores = usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
 
-        // Imprime para depuración
         doctores.forEach(doc -> {
-            System.out.println("Doctor: " + doc.getUsuario().getNombre() + " " +
-                    doc.getUsuario().getApellido() + " - " + doc.getEspecialidad() +
-                    " - " + doc.getHorarioAtencion());
+            if (doc.getUsuario() != null) {
+                System.out.println("Doctor: " + doc.getUsuario().getNombre() + " "
+                        + doc.getUsuario().getApellido() + " - " + doc.getEspecialidad());
+            }
         });
 
         return doctores;
     }
 
-    /*
-    // Método de agenda deshabilitado por ahora
-    @GetMapping("/agenda")
-    @ResponseBody
-    public List<String> horas(@RequestParam Long doctorId, @RequestParam String fecha) {
-        return agendaClient.obtenerAgenda(doctorId, fecha);
-    }
-    */
-
-    // Crear cita
+    // 🔹 Crear cita (Recibiendo JSON desde el frontend)
     @PostMapping("/agendar")
-    public String crearCita(@ModelAttribute CitaRequestDTO cita) {
-        citasClient.crearCita(cita);
-        return "redirect:/home-paciente";
+    @ResponseBody
+    public CitaDTO crearCita(@RequestBody CitaRequestDTO cita) {
+        // Llamada al microservicio de citas
+        CitaDTO citaCreada = citasClient.crearCita(cita);
+        System.out.println("Cita creada: " + citaCreada);
+        return citaCreada; // Devuelve la cita creada como JSON al frontend
     }
+
+    @GetMapping("/{doctorId}/citas")
+    public String verCitas(@PathVariable Long doctorId, Model model) {
+        List<CitaDTO> citas = citasClient.citasPorDoctor(doctorId);
+        model.addAttribute("citas", citas);
+        return "usuario/doctor/CitasAgendadas"; // Nombre del HTML Thymeleaf
+    }
+
 }
