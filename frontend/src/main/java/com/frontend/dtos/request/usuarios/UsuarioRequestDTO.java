@@ -9,5 +9,5 @@ public class UsuarioRequestDTO {
     private String apellido;
     private String correo;
     private String password;
-    private String rol;
+    private String rol = "PACIENTE";
 }
