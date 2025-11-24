@@ -2,6 +2,7 @@ package com.frontend.controller;
 
 import com.frontend.clients.UsuariosClient;
 import com.frontend.dtos.request.LoginRequestDTO;
+import com.frontend.dtos.request.usuarios.UsuarioRequestDTO;
 import com.frontend.dtos.response.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,8 @@ public class LoginController {
     private UsuariosClient usuariosClient;
 
     @GetMapping
-    public String loginPage() {
+    public String loginPage(Model model) {
+        model.addAttribute("usuario", new UsuarioRequestDTO());
         return "login";
     }
 

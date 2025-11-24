@@ -37,7 +37,7 @@
           background-color: white;
           border-radius: 15px;
           overflow: hidden;
-          box-shadow: 0 0 10px rgb(0,0,0.3)
+          box-shadow: 0 0 10px rgb(0,0,0.3);
         }
 
         .container-form{
@@ -266,10 +266,8 @@
                 <ion-icon name="lock-closed-outline"></ion-icon>
                 <input type='password' placeholder="Repita la contraseña">
             </div>
-            <input type="hidden" th:field="*{rol}" value="PACIENTE">
-            <button class="btn" type="submit">
-                REGISTRARSE
-            </button>
+            <input type="hidden" th:field="*{rol}" th:value="'PACIENTE'">
+            <button class="btn" type="submit">REGISTRARSE</button>
             <span>ó</span>
             <div class="google">
                 <a href="/oauth2/authorization/google" class="btn-google">
