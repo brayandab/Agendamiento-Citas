@@ -63,6 +63,7 @@ public interface UsuariosClient {
     // 🟣 DOCTORES
     // ============================================================
 
+    // --- DOCTORES ---
     @GetMapping("/usuarios/doctores")
     List<DoctorDTO> listarDoctores();
 
@@ -72,13 +73,15 @@ public interface UsuariosClient {
     @GetMapping("/usuarios/doctores/{id}")
     DoctorDTO buscarDoctorPorId(@PathVariable("id") Long id);
 
+    @GetMapping("/usuarios/doctores/usuario/{usuarioId}")  // 🔥 NUEVO
+    DoctorDTO buscarDoctorPorUsuarioId(@PathVariable("usuarioId") Long usuarioId);
+
     @DeleteMapping("/usuarios/doctores/{id}")
     void eliminarDoctor(@PathVariable("id") Long id);
 
     @GetMapping("/usuarios/doctores/especialidad/{especialidad}")
-    List<DoctorDTO> buscarDoctoresPorEspecialidad(
-            @PathVariable("especialidad") String especialidad
-    );
+    List<DoctorDTO> buscarDoctoresPorEspecialidad(@PathVariable("especialidad") String especialidad);
+
 
     // ============================================================
     // 🟢 PACIENTES

@@ -1,6 +1,5 @@
 package com.frontend.clients;
 
-
 import com.frontend.dtos.request.agenda.AgendaRequestDTO;
 import com.frontend.dtos.response.agenda.AgendaDTO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -26,14 +25,19 @@ public interface AgendaClient {
     @DeleteMapping("/agenda/{id}")
     void eliminarAgenda(@PathVariable("id") Long id);
 
-    // 👉 Agendas disponibles por doctor
+    @GetMapping("/agenda/con-doctor")
+    List<AgendaDTO> listarConDoctor();
+
     @GetMapping("/agenda/doctor/{doctorId}")
     List<AgendaDTO> findByDoctor(@PathVariable("doctorId") Long doctorId);
 
-    // 👉 Agendas disponibles por doctor y fecha
-    @GetMapping("/agenda/doctor/{doctorId}/fecha/{fecha}")
-    List<AgendaDTO> findByDoctorAndFecha(
-            @PathVariable("doctorId") Long doctorId,
-            @PathVariable("fecha") String fecha
-    );
+    @GetMapping("/agenda/doctor/{doctorId}/simple")
+    List<AgendaDTO> findByDoctorSimple(@PathVariable("doctorId") Long doctorId);
+
+    @PostMapping("/agenda/franjas")
+    void crearFranjas(@RequestBody AgendaRequestDTO dto);
+
+    @PutMapping("/agenda/{id}")
+    AgendaDTO actualizar(@PathVariable("id") Long id, @RequestBody AgendaRequestDTO dto);
 }
+

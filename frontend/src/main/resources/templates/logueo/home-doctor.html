@@ -54,13 +54,14 @@
     <div class="row g-4">
 
         <div class="col-md-4">
-            <a href="/front/citas/doctor">
+            <a th:href="@{'/front/citas/' + ${usuarioId} + '/citas'}">
                 <div class="card-option text-center">
                     <div class="icon">📅</div>
                     <h4>Mis Citas</h4>
                 </div>
             </a>
         </div>
+
 
         <div class="col-md-4">
             <a href="/front/pacientes">
@@ -76,6 +77,16 @@
                 <div class="card-option text-center">
                     <div class="icon">📄</div>
                     <h4>Historial Clínico</h4>
+                </div>
+            </a>
+        </div>
+
+        <!-- 🔥 NUEVA OPCIÓN: REGISTRAR DISPONIBILIDAD -->
+        <div class="col-md-4">
+            <a href="/front/doctores/disponibilidad">
+                <div class="card-option text-center">
+                    <div class="icon">🕒</div>
+                    <h4>Registrar Disponibilidad</h4>
                 </div>
             </a>
         </div>
