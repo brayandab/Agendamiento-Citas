@@ -51,7 +51,7 @@
 <body>
 
 <!-- INSERTAR LA BARRA LATERAL -->
-<div th:insert="layout/sidebar :: sidebar"></div>
+<div th:insert="~{layout/sidebar-paciente :: sidebar}"></div>
 
 <!-- CONTENIDO PRINCIPAL -->
 <div class="content">
@@ -71,7 +71,7 @@
             </div>
 
             <div class="col-md-4">
-                <a href="/front/citas">
+                <a href="/front/citas/mis-citas">
                     <div class="card-option text-center">
                         <div class="icon">📅</div>
                         <h4>Mis Citas</h4>
@@ -84,15 +84,6 @@
                     <div class="card-option text-center">
                         <div class="icon">📄</div>
                         <h4>Historial Médico</h4>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-md-4">
-                <a href="/front/medicamentos">
-                    <div class="card-option text-center">
-                        <div class="icon">💊</div>
-                        <h4>Mis Medicamentos</h4>
                     </div>
                 </a>
             </div>

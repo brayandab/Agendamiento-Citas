@@ -25,11 +25,10 @@ public interface CitasClient {
     @DeleteMapping("/citas/{id}")
     void eliminarCita(@PathVariable("id") Long id);
 
-    // 👉 Citas por paciente
     @GetMapping("/citas/paciente/{pacienteId}")
     List<CitaDTO> citasPorPaciente(@PathVariable("pacienteId") Long pacienteId);
 
-    // 👉 Citas por doctor
-    @GetMapping("/citas/doctor/{doctorId}")
-    List<CitaDTO> citasPorDoctor(@PathVariable("doctorId") Long doctorId);
+    @GetMapping("/citas/medico/{medicoId}")
+    List<CitaDTO> buscarPorMedico(@PathVariable("medicoId") Long medicoId);
+
 }

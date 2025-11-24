@@ -5,6 +5,8 @@ import com.frontend.clients.UsuariosClient;
 import com.frontend.dtos.request.cita.CitaRequestDTO;
 import com.frontend.dtos.response.citas.CitaDTO;
 import com.frontend.dtos.response.usuarios.DoctorDTO;
+
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,49 +25,92 @@ public class CitaController {
     @Autowired
     private CitasClient citasClient;
 
-    // Página del formulario de agendar cita
+
+    // ============================================================
+    // 🔵 AGENDAR CITA - FORMULARIO
+    // ============================================================
     @GetMapping("/agendar")
-    public String agendar(Model model, @SessionAttribute("usuarioId") Long usuarioId) {
-        // Pasamos el pacienteId al frontend
+    public String agendar(Model model, HttpSession session) {
+
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+        if (usuarioId == null) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("pacienteId", usuarioId);
         return "agendar-cita";
     }
 
-    // 🔹 Obtener doctores por especialidad (LLAMADO DESDE EL HTML)
+
+    // ============================================================
+    // 🟣 OBTENER DOCTORES POR ESPECIALIDAD
+    // ============================================================
     @GetMapping("/doctores")
     @ResponseBody
     public List<DoctorDTO> listarDoctores(@RequestParam String especialidad) {
+
         if (especialidad == null || especialidad.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<DoctorDTO> doctores = usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
 
-        doctores.forEach(doc -> {
-            if (doc.getUsuario() != null) {
-                System.out.println("Doctor: " + doc.getUsuario().getNombre() + " "
-                        + doc.getUsuario().getApellido() + " - " + doc.getEspecialidad());
-            }
-        });
-
         return doctores;
     }
 
-    // 🔹 Crear cita (Recibiendo JSON desde el frontend)
+
+    // ============================================================
+    // 🟢 CREAR CITA
+    // ============================================================
     @PostMapping("/agendar")
     @ResponseBody
     public CitaDTO crearCita(@RequestBody CitaRequestDTO cita) {
-        // Llamada al microservicio de citas
+
         CitaDTO citaCreada = citasClient.crearCita(cita);
-        System.out.println("Cita creada: " + citaCreada);
-        return citaCreada; // Devuelve la cita creada como JSON al frontend
+        return citaCreada;
     }
 
-    @GetMapping("/{doctorId}/citas")
-    public String verCitas(@PathVariable Long doctorId, Model model) {
-        List<CitaDTO> citas = citasClient.citasPorDoctor(doctorId);
+
+    // ============================================================
+    // 🟦 PACIENTE — VER SUS PROPIAS CITAS
+    // ============================================================
+    @GetMapping("/mis-citas")
+    public String verMisCitasPaciente(Model model, HttpSession session) {
+
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+        if (usuarioId == null) {
+            return "redirect:/login";
+        }
+
+        List<CitaDTO> citas = citasClient.citasPorPaciente(usuarioId);
+
         model.addAttribute("citas", citas);
-        return "usuario/doctor/CitasAgendadas"; // Nombre del HTML Thymeleaf
+
+        return "usuario/paciente/mis-citas";
     }
+
+
+    // ============================================================
+    // 🟧 DOCTOR — VER SUS CITAS
+    // ============================================================
+    @GetMapping("/mis-citas-doctor")
+    public String verMisCitasDoctor(Model model, HttpSession session) {
+
+        Long doctorId = (Long) session.getAttribute("doctorId");
+
+        if (doctorId == null) {
+            return "redirect:/login";
+        }
+
+        List<CitaDTO> citas = citasClient.buscarPorMedico(doctorId);
+
+        model.addAttribute("citas", citas);
+
+        return "usuario/doctor/mis-citas-doctor"; // HTML del doctor
+    }
+
+
 
 }

@@ -112,6 +112,14 @@
             font-size: 20px;
         }
 
+        .logout-container {
+            position: absolute;
+            bottom: 25px;
+            left: 10px;
+            right: 10px;
+        }
+
+
         .modal-buttons {
             margin-top: 20px;
             display: flex;
@@ -134,41 +142,22 @@
 
     </style>
 
-
-    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar">
 
-        <h3 th:text="${panelTitulo}">Panel</h3>
+        <h3>Panel Paciente</h3>
 
-        <!-- 🔹 PACIENTE -->
-        <div th:if="${rol == 'PACIENTE'}">
-            <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
-            <a href="/front/citas">📅 <span>Mis Citas</span></a>
-            <a href="/front/historial">📄 <span>Historial Médico</span></a>
-            <a href="/front/medicamentos">💊 <span>Mis Medicamentos</span></a>
-        </div>
-
-        <!-- 🔹 DOCTOR -->
-        <div th:if="${rol == 'DOCTOR'}">
-            <a href="/front/citas/doctor">📅 <span>Mis Citas</span></a>
-            <a href="/front/pacientes">🧑‍⚕️ <span>Pacientes Atendidos</span></a>
-            <a href="/front/historial/doctor">📄 <span>Historial Clínico</span></a>
-        </div>
-
-        <!-- 🔹 ADMIN -->
-        <div th:if="${rol == 'ADMIN'}">
-            <a href="/front/usuarios">👤 <span>Gestionar Usuarios</span></a>
-            <a href="/front/reportes">📊 <span>Reportes</span></a>
-        </div>
+        <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
+        <a href="/front/citas/mis-citas">📅 <span>Mis Citas</span></a>
+        <a href="/front/historial">📄 <span>Historial Médico</span></a>
 
         <hr style="border-color: rgba(255,255,255,0.3);">
 
-        <div class="logout-btn" onclick="abrirLogout()">❌ <span>Cerrar Sesión</span></div>
+        <div class="logout-container">
+            <div class="logout-btn" onclick="abrirLogout()">❌ <span>Cerrar Sesión</span></div>
+        </div>
     </div>
 
-
     <div class="sidebar-overlay"></div>
-
 
     <div id="logoutModal" class="modal-overlay">
         <div class="modal-box">
@@ -182,7 +171,6 @@
             </div>
         </div>
     </div>
-
 
     <script>
 
