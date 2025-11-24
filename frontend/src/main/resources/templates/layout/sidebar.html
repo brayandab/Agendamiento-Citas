@@ -5,18 +5,20 @@
 <div th:fragment="sidebar">
 
     <style>
+
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 70px;
             height: 100vh;
-            background: #1e3a8a;
+            background: #1C5A8C;
             padding: 20px 10px;
             color: white;
             box-shadow: 3px 0 10px rgba(0,0,0,0.3);
             overflow: hidden;
             transition: width 0.25s ease;
+            z-index: 100;
         }
 
         .sidebar:hover {
@@ -64,18 +66,81 @@
             opacity: 1;
         }
 
-        .content {
-            margin-left: 260px;
-            padding: 30px;
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.45);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 50;
         }
+
+        .sidebar:hover ~ .sidebar-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 25px;
+            width: 300px;
+            border-radius: 12px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .modal-box h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #1C5A8C;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .modal-buttons button:hover {
+            background: #174a72;
+        }
+
     </style>
 
+
+    <!-- ===== SIDEBAR ===== -->
     <div class="sidebar">
 
-        <!-- Muestra el título correspondiente al rol -->
         <h3 th:text="${panelTitulo}">Panel</h3>
 
-        <!-- 🔹 OPCIONES PARA PACIENTE -->
+        <!-- 🔹 PACIENTE -->
         <div th:if="${rol == 'PACIENTE'}">
             <a href="/front/citas/agendar">📝 <span>Agendar Cita</span></a>
             <a href="/front/citas">📅 <span>Mis Citas</span></a>
@@ -83,14 +148,14 @@
             <a href="/front/medicamentos">💊 <span>Mis Medicamentos</span></a>
         </div>
 
-        <!-- 🔹 OPCIONES PARA DOCTOR -->
+        <!-- 🔹 DOCTOR -->
         <div th:if="${rol == 'DOCTOR'}">
             <a href="/front/citas/doctor">📅 <span>Mis Citas</span></a>
             <a href="/front/pacientes">🧑‍⚕️ <span>Pacientes Atendidos</span></a>
             <a href="/front/historial/doctor">📄 <span>Historial Clínico</span></a>
         </div>
 
-        <!-- 🔹 OPCIONES PARA ADMIN -->
+        <!-- 🔹 ADMIN -->
         <div th:if="${rol == 'ADMIN'}">
             <a href="/front/usuarios">👤 <span>Gestionar Usuarios</span></a>
             <a href="/front/reportes">📊 <span>Reportes</span></a>
@@ -98,16 +163,43 @@
 
         <hr style="border-color: rgba(255,255,255,0.3);">
 
-        <!-- Botón de cerrar sesión -->
-        <div class="logout-btn" onclick="cerrarSesion()">❌ <span>Cerrar Sesión</span></div>
+        <div class="logout-btn" onclick="abrirLogout()">❌ <span>Cerrar Sesión</span></div>
     </div>
 
+
+    <div class="sidebar-overlay"></div>
+
+
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Cerrar sesión</h3>
+            <p>¿Está seguro de que desea cerrar la sesión?</p>
+            <p>(Perderá cualquier cambio sin confirmar)</p>
+
+            <div class="modal-buttons">
+                <button onclick="confirmarLogout()">Sí, salir</button>
+                <button onclick="cancelarLogout()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        function cerrarSesion() {
+
+        function abrirLogout() {
+            document.getElementById("logoutModal").style.display = "flex";
+        }
+
+        function cancelarLogout() {
+            document.getElementById("logoutModal").style.display = "none";
+        }
+
+        function confirmarLogout() {
             sessionStorage.clear();
             localStorage.clear();
             window.location.href = "/";
         }
+
     </script>
 
 </div>
