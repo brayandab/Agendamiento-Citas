@@ -15,10 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import feign.FeignException;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Controller
 @RequestMapping("/front/citas")
@@ -30,50 +29,33 @@ public class CitaController {
     @Autowired
     private CitasClient citasClient;
 
-    // ============================================================
-    //  AGENDAR CITA - FORMULARIO
-    // ============================================================
     @GetMapping("/agendar")
     public String agendar(Model model, HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
-
         if (usuarioId == null) {
             return "redirect:/login";
         }
-
         model.addAttribute("pacienteId", usuarioId);
         return "agendar-cita";
     }
 
-    // ============================================================
-    // OBTENER DOCTORES POR ESPECIALIDAD
-    // ============================================================
     @GetMapping("/doctores")
     @ResponseBody
     public List<DoctorDTO> listarDoctores(@RequestParam String especialidad) {
         if (especialidad == null || especialidad.isEmpty()) {
             return Collections.emptyList();
         }
-
-        List<DoctorDTO> doctores = usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
-        return doctores;
+        return usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
     }
 
-    // ============================================================
-    // 🟢 CREAR CITA (Ahora el backend maneja el bloqueo)
-    // ============================================================
     @PostMapping("/agendar")
     @ResponseBody
     public ResponseEntity<?> crearCita(@RequestBody CitaRequestDTO cita) {
         try {
-            // El microservicio de CITAS ahora se encarga de bloquear la agenda
             CitaDTO citaCreada = citasClient.crearCita(cita);
             return ResponseEntity.ok(citaCreada);
-
         } catch (FeignException e) {
-            // Capturar errores del microservicio de citas
             Map<String, String> error = new HashMap<>();
-
             if (e.status() == 409) {
                 error.put("mensaje", "Este horario ya no está disponible");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
@@ -87,9 +69,6 @@ public class CitaController {
         }
     }
 
-    // ============================================================
-    //  PACIENTE — VER SUS PROPIAS CITAS
-    // ============================================================
     @GetMapping("/mis-citas")
     public String verMisCitasPaciente(Model model, HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
@@ -99,14 +78,16 @@ public class CitaController {
         }
 
         List<CitaDTO> citas = citasClient.citasPorPaciente(usuarioId);
-        model.addAttribute("citas", citas);
 
+        citas.sort(
+                Comparator.comparing((CitaDTO c) -> LocalDate.parse(c.getFecha()))
+                        .thenComparing(c -> LocalTime.parse(c.getHora()))
+        );
+
+        model.addAttribute("citas", citas);
         return "usuario/paciente/mis-citas";
     }
 
-    // ============================================================
-    // 🟧 DOCTOR — VER SUS CITAS
-    // ============================================================
     @GetMapping("/mis-citas-doctor")
     public String verMisCitasDoctor(Model model, HttpSession session) {
         Long doctorId = (Long) session.getAttribute("doctorId");
@@ -116,8 +97,13 @@ public class CitaController {
         }
 
         List<CitaDTO> citas = citasClient.buscarPorMedico(doctorId);
-        model.addAttribute("citas", citas);
 
+        citas.sort(
+                Comparator.comparing((CitaDTO c) -> LocalDate.parse(c.getFecha()))
+                        .thenComparing(c -> LocalTime.parse(c.getHora()))
+        );
+
+        model.addAttribute("citas", citas);
         return "usuario/doctor/mis-citas-doctor";
     }
 }
