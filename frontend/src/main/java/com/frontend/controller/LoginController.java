@@ -39,7 +39,7 @@ public class LoginController {
 
             // Guardamos usuarioId en sesión
             session.setAttribute("usuarioId", response.getId());
-
+            session.setAttribute("usuarioLogueado", response);
             switch (rol) {
                 case "ADMIN":
                     return "redirect:/home/admin?rol=ADMIN";
