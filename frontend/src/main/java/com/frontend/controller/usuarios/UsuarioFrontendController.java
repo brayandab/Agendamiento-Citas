@@ -15,12 +15,6 @@ public class UsuarioFrontendController {
     @Autowired
     private UsuariosClient client;
 
-    /*@GetMapping
-    public String listar(Model model) {
-        model.addAttribute("usuarios", client.listarUsuarios());
-        return "usuario/ListaUsuarios";
-    }*/
-
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
         model.addAttribute("usuario", new UsuarioRequestDTO());

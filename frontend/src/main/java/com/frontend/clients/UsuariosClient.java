@@ -35,7 +35,7 @@ import java.util.List;
 public interface UsuariosClient {
 
     // ============================================================
-    // 🔵 USUARIOS
+    //  USUARIOS
     // ============================================================
 
     @GetMapping("/usuarios")
@@ -52,7 +52,7 @@ public interface UsuariosClient {
 
 
     // ============================================================
-    // 🔐 LOGIN
+    //  LOGIN
     // ============================================================
 
     @PostMapping("/usuarios/login")
@@ -60,7 +60,7 @@ public interface UsuariosClient {
 
 
     // ============================================================
-    // 🟣 DOCTORES
+    //  DOCTORES
     // ============================================================
 
     // --- DOCTORES ---
@@ -73,7 +73,7 @@ public interface UsuariosClient {
     @GetMapping("/usuarios/doctores/{id}")
     DoctorDTO buscarDoctorPorId(@PathVariable("id") Long id);
 
-    @GetMapping("/usuarios/doctores/usuario/{usuarioId}")  // 🔥 NUEVO
+    @GetMapping("/usuarios/doctores/usuario/{usuarioId}")
     DoctorDTO buscarDoctorPorUsuarioId(@PathVariable("usuarioId") Long usuarioId);
 
     @DeleteMapping("/usuarios/doctores/{id}")
@@ -84,7 +84,7 @@ public interface UsuariosClient {
 
 
     // ============================================================
-    // 🟢 PACIENTES
+    //  PACIENTES
     // ============================================================
 
     @GetMapping("/usuarios/pacientes")

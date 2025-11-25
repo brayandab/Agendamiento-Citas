@@ -39,5 +39,7 @@ public interface AgendaClient {
 
     @PutMapping("/agenda/{id}")
     AgendaDTO actualizar(@PathVariable("id") Long id, @RequestBody AgendaRequestDTO dto);
-}
 
+    @PutMapping("/agenda/{id}/bloquear")
+    AgendaDTO bloquearAgenda(@PathVariable("id") Long id);
+}

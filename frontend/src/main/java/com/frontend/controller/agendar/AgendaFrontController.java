@@ -37,7 +37,6 @@ public class AgendaFrontController {
     public String mostrarFormularioCrearAgenda(Model model) {
         AgendaRequestDTO dto = new AgendaRequestDTO();
         dto.setDisponible(true);
-        // TODO: Reemplazar con el id real del doctor logueado
         dto.setMedicoId(9L);
         model.addAttribute("agenda", dto);
         return "usuario/doctor/AgendarDoctor";
@@ -67,7 +66,7 @@ public class AgendaFrontController {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        // 🔹 Aquí hacemos la conversión correcta
+        // Aquí hacemos la conversión correcta
         dto.setFecha(agenda.getFecha().format(dateFormatter));
         dto.setHoraInicio(agenda.getHoraInicio().format(timeFormatter));
         dto.setHoraFin(agenda.getHoraFin().format(timeFormatter));

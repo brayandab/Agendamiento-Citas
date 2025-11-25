@@ -7,5 +7,5 @@ public class NotificacionRequestDTO {
     private String to;
     private String namePatient;
     private String apptDate;
-    private String tipo; // CONFIRMACION_CITA
+    private String tipo;
 }

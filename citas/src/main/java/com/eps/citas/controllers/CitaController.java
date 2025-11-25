@@ -4,10 +4,13 @@ import com.eps.citas.dtos.CitaRequestDTO;
 import com.eps.citas.models.Cita;
 import com.eps.citas.services.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/citas")
@@ -22,9 +25,30 @@ public class CitaController {
     }
 
     @PostMapping
-    public ResponseEntity<Cita> crear(@RequestBody CitaRequestDTO dto) {
-        Cita guardada = citaService.guardarCita(dto);
-        return ResponseEntity.ok(guardada);
+    public ResponseEntity<?> crear(@RequestBody CitaRequestDTO dto) {
+        try {
+            Cita guardada = citaService.guardarCita(dto);
+            return ResponseEntity.ok(guardada);
+
+        } catch (RuntimeException e) {
+
+            // Manejo específico de errores
+            String mensaje = e.getMessage();
+            HttpStatus status;
+
+            if (mensaje.contains("no está disponible")) {
+                status = HttpStatus.CONFLICT; // 409
+            } else if (mensaje.contains("No se encontró")) {
+                status = HttpStatus.NOT_FOUND; // 404
+            } else {
+                status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
+            }
+
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", mensaje);
+
+            return ResponseEntity.status(status).body(error);
+        }
     }
 
     @GetMapping("/{id}")

@@ -1,4 +1,4 @@
-package com.frontend.dtos.response.agenda;
+package com.eps.citas.dtos;
 
 import lombok.Data;
 import java.time.LocalDate;

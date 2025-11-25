@@ -5,11 +5,15 @@ import com.eps.agenda.dtos.AgendarCreateDTO;
 import com.eps.agenda.models.Agenda;
 import com.eps.agenda.services.AgendaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/agenda")
@@ -76,11 +80,68 @@ public class AgendaController {
         return ResponseEntity.ok(creadas);
     }
 
-    // ======================================
-    // NUEVO: Bloquear agenda desde el endpoint cuando se reserva
-    // ======================================
     @PutMapping("/{id}/bloquear")
-    public ResponseEntity<Agenda> bloquearAgenda(@PathVariable Long id) {
-        return ResponseEntity.ok(agendaService.bloquearAgenda(id));
+    public ResponseEntity<?> bloquearAgenda(@PathVariable Long id) {
+        try {
+            Agenda bloqueada = agendaService.bloquearAgenda(id);
+            return ResponseEntity.ok(bloqueada);
+
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            String mensaje = e.getMessage();
+
+            if (mensaje.contains("no encontrada")) {
+                error.put("mensaje", mensaje);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            } else if (mensaje.contains("ya está ocupada")) {
+                error.put("mensaje", mensaje);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+            } else {
+                error.put("mensaje", "Error al bloquear la agenda");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
+        }
+    }
+
+    @PostMapping("/bloquear-horario")
+    public ResponseEntity<?> bloquearPorHorario(
+            @RequestParam Long medicoId,
+            @RequestParam String fecha,
+            @RequestParam String hora
+    ) {
+        try {
+            LocalDate fechaLocal = LocalDate.parse(fecha);
+            LocalTime horaLocal = LocalTime.parse(hora);
+
+            Agenda bloqueada = agendaService.buscarYBloquearAgenda(medicoId, fechaLocal, horaLocal);
+            return ResponseEntity.ok(bloqueada);
+
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            String mensaje = e.getMessage();
+
+            if (mensaje.contains("No se encontró")) {
+                error.put("mensaje", mensaje);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            } else if (mensaje.contains("no está disponible")) {
+                error.put("mensaje", mensaje);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+            } else {
+                error.put("mensaje", "Error al bloquear el horario");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            }
+        }
+    }
+
+    @PutMapping("/{id}/desbloquear")
+    public ResponseEntity<?> desbloquearAgenda(@PathVariable Long id) {
+        try {
+            Agenda desbloqueada = agendaService.desbloquearAgenda(id);
+            return ResponseEntity.ok(desbloqueada);
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
     }
 }

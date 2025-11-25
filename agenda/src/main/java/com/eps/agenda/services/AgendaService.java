@@ -7,6 +7,7 @@ import com.eps.agenda.models.Agenda;
 import com.eps.agenda.repository.AgendaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -27,7 +28,6 @@ public class AgendaService {
 
     private final String USUARIOS_URL = "http://localhost:8081/usuarios/doctores/";
 
-    // Listar todas las agendas
     public List<Agenda> listar() {
         return agendaRepository.findAll();
     }
@@ -66,7 +66,6 @@ public class AgendaService {
         agendaRepository.deleteById(id);
     }
 
-    // Crear franjas de 1 hora
     public List<Agenda> crearFranjas(AgendarCreateDTO dto) {
         LocalDate fecha = dto.getFecha();
         LocalTime inicio = dto.getHoraInicio();
@@ -99,7 +98,6 @@ public class AgendaService {
         return creadas;
     }
 
-    // Listar agendas con info del doctor
     public List<AgendaResponseDTO> listarConDoctor() {
         List<Agenda> agendas = agendaRepository.findAll();
         List<AgendaResponseDTO> resultado = new ArrayList<>();
@@ -138,7 +136,7 @@ public class AgendaService {
 
         return agendas.stream().map(a -> {
             AgendaResponseDTO dto = new AgendaResponseDTO();
-            dto.setId(a.getId());           // ← ahora coincide con frontend
+            dto.setId(a.getId());
             dto.setMedicoId(a.getMedicoId());
             dto.setFecha(a.getFecha());
             dto.setHoraInicio(a.getHoraInicio());
@@ -147,7 +145,6 @@ public class AgendaService {
             return dto;
         }).collect(Collectors.toList());
     }
-
 
     public List<AgendaResponseDTO> listarPorMedicoYFecha(Long doctorId, LocalDate fecha) {
         List<Agenda> agendas = agendaRepository.findByMedicoIdAndFecha(doctorId, fecha);
@@ -164,13 +161,57 @@ public class AgendaService {
         }).collect(Collectors.toList());
     }
 
-    // ======================================
-    // NUEVO: BLOQUEAR una agenda cuando se reserva
-    // ======================================
+    @Transactional
     public Agenda bloquearAgenda(Long id) {
+        // 1. Obtener la agenda con lock pesimista (evita race conditions)
         Agenda agenda = agendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agenda no encontrada con ID: " + id));
+
+        // 2. Validar disponibilidad
+        if (!Boolean.TRUE.equals(agenda.getDisponible())) {
+            throw new RuntimeException("Esta agenda ya está ocupada");
+        }
+
+        // 3. Bloquear la agenda
+        agenda.setDisponible(false);
+
+        // 4. Guardar y retornar
+        return agendaRepository.save(agenda);
+    }
+
+    @Transactional
+    public Agenda buscarYBloquearAgenda(Long medicoId, LocalDate fecha, LocalTime hora) {
+        // Buscar la agenda específica CON LOCK PESIMISTA
+        Optional<Agenda> agendaOpt = agendaRepository.findByMedicoIdAndFechaAndHoraInicioWithLock(
+                medicoId, fecha, hora
+        );
+
+        if (!agendaOpt.isPresent()) {
+            throw new RuntimeException("No se encontró el horario seleccionado");
+        }
+
+        Agenda agenda = agendaOpt.get();
+
+
+        if (!Boolean.TRUE.equals(agenda.getDisponible())) {
+            throw new RuntimeException("Este horario ya no está disponible");
+        }
+
+
         agenda.setDisponible(false);
         return agendaRepository.save(agenda);
+    }
+
+    @Transactional
+    public Agenda desbloquearAgenda(Long id) {
+        Agenda agenda = agendaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Agenda no encontrada con ID: " + id));
+
+        agenda.setDisponible(true);
+        return agendaRepository.save(agenda);
+    }
+
+    public Optional<Agenda> buscarYValidarDisponibilidad(Long medicoId, LocalDate fecha, LocalTime hora) {
+        return agendaRepository.findByMedicoIdAndFechaAndHoraInicio(medicoId, fecha, hora);
     }
 }

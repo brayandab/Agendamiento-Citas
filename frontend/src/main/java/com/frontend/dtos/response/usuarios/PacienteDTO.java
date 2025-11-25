@@ -8,7 +8,7 @@ public class PacienteDTO {
     private String documento;
     private String telefono;
     private String direccion;
-    private String fechaNacimiento; // <- String para evitar errores con dd/MM/yyyy
+    private String fechaNacimiento;
     private String eps;
 
     private Long usuarioId;

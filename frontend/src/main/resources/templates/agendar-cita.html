@@ -15,7 +15,6 @@
             color: #333;
         }
 
-        /* Separación por el sidebar fijo */
         .content {
             margin-left: 260px;
             padding: 40px;
@@ -38,22 +37,42 @@
         .btn-back {
             margin-top: 20px;
         }
+
+        .alert-floating {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<!-- 🔹 SIDEBAR PACIENTE -->
+<!-- Sidebar Paciente -->
 <div th:insert="~{layout/sidebar-paciente :: sidebar}"></div>
 
-<!-- 🔹 CONTENIDO PRINCIPAL -->
+<!-- Contenido Principal -->
 <div class="content">
 
     <div class="title">📝 Agendar Cita</div>
 
     <div class="container">
 
-        <!-- SELECCIÓN DE ESPECIALIDAD -->
+        <!-- Selección de Especialidad -->
         <div class="card-custom mb-3">
             <label class="form-label fw-bold">Selecciona la especialidad</label>
             <select id="especialidadSelect" class="form-select">
@@ -65,7 +84,7 @@
             </select>
         </div>
 
-        <!-- DOCTORES -->
+        <!-- Doctores -->
         <div class="card-custom mb-3 d-none" id="doctoresCard">
             <label class="form-label fw-bold">Doctores disponibles</label>
             <select id="doctorSelect" class="form-select">
@@ -79,9 +98,14 @@
             </div>
         </div>
 
-        <!-- HORARIOS -->
+        <!-- Horarios -->
         <div class="card-custom d-none" id="horariosCard">
-            <h5 class="fw-bold">Horarios disponibles</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Horarios disponibles</h5>
+                <button id="refreshBtn" class="btn btn-sm btn-outline-primary">
+                    🔄 Actualizar
+                </button>
+            </div>
 
             <div id="horariosSpinner" class="text-center mt-2 d-none">
                 <div class="spinner-border text-primary" role="status">
@@ -94,7 +118,7 @@
             <button id="agendarBtn" class="btn btn-success w-100" disabled>Agendar cita</button>
         </div>
 
-        <!-- ID PACIENTE -->
+        <!-- ID Paciente -->
         <input type="hidden" id="pacienteId" th:value="${pacienteId}">
 
         <div class="text-center btn-back">
@@ -105,7 +129,6 @@
 
 </div>
 
-<!-- ==================== JAVASCRIPT ORIGINAL ===================== -->
 <script>
     const especialidadSelect = document.getElementById("especialidadSelect");
     const doctorSelect = document.getElementById("doctorSelect");
@@ -115,10 +138,27 @@
     const doctoresSpinner = document.getElementById("doctoresSpinner");
     const horariosSpinner = document.getElementById("horariosSpinner");
     const agendarBtn = document.getElementById("agendarBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
     const pacienteId = document.getElementById("pacienteId").value;
 
     let selectedAgenda = null;
 
+    // Función para mostrar alertas flotantes
+    function mostrarAlerta(mensaje, tipo = 'success') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${tipo} alert-dismissible fade show alert-floating`;
+        alertDiv.innerHTML = `
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Cargar doctores por especialidad
     especialidadSelect.addEventListener("change", function () {
         const esp = this.value;
         if (!esp) return;
@@ -127,11 +167,17 @@
         horariosContainer.innerHTML = "";
         horariosCard.classList.add("d-none");
         agendarBtn.disabled = true;
+        selectedAgenda = null;
         doctoresSpinner.classList.remove("d-none");
 
         fetch(`/front/citas/doctores?especialidad=${esp}`)
             .then(r => r.json())
             .then(doctores => {
+                if (doctores.length === 0) {
+                    mostrarAlerta('No hay doctores disponibles para esta especialidad', 'warning');
+                    return;
+                }
+
                 doctores.forEach(doc => {
                     doctorSelect.innerHTML += `
                         <option value="${doc.id}">
@@ -140,24 +186,36 @@
                 });
                 doctoresCard.classList.remove("d-none");
             })
-            .catch(err => console.error("Error cargando doctores", err))
+            .catch(err => {
+                console.error("Error cargando doctores", err);
+                mostrarAlerta('Error al cargar doctores', 'danger');
+            })
             .finally(() => doctoresSpinner.classList.add("d-none"));
     });
 
-    doctorSelect.addEventListener("change", function () {
-        const doctorId = this.value;
+    // Función para cargar horarios (reutilizable)
+    function cargarHorarios() {
+        const doctorId = doctorSelect.value;
         if (!doctorId) return;
 
         horariosContainer.innerHTML = "";
-        horariosCard.classList.remove("d-none");
         agendarBtn.disabled = true;
         selectedAgenda = null;
         horariosSpinner.classList.remove("d-none");
 
         fetch(`/front/agenda/doctor/${doctorId}/simple`)
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
+                return r.json();
+            })
             .then(agendas => {
                 const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+
+                let horariosDisponibles = 0;
+
                 agendas.forEach(a => {
                     const fechaAgenda = new Date(a.fecha);
                     const btn = document.createElement("button");
@@ -165,6 +223,7 @@
                     btn.textContent = `${a.fecha} — ${a.horaInicio} a ${a.horaFin}`;
 
                     if (a.disponible && fechaAgenda >= hoy) {
+                        horariosDisponibles++;
                         btn.classList.add("btn-outline-primary");
                         btn.addEventListener("click", () => {
                             horariosContainer.querySelectorAll("button").forEach(b => {
@@ -179,53 +238,116 @@
                     } else {
                         btn.classList.add("btn-secondary");
                         btn.disabled = true;
+                        if (!a.disponible) {
+                            btn.textContent += " (Ocupado)";
+                        } else {
+                            btn.textContent += " (Pasado)";
+                        }
                     }
 
                     horariosContainer.appendChild(btn);
                 });
 
-                if (!horariosContainer.innerHTML) {
-                    horariosContainer.innerHTML = `<p class="text-muted">No hay horarios disponibles.</p>`;
+                if (horariosDisponibles === 0) {
+                    horariosContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            No hay horarios disponibles para este doctor.
+                        </div>`;
                 }
             })
             .catch(err => {
-                console.error("Error cargando agenda", err);
-                horariosContainer.innerHTML = `<p class="text-danger">Error cargando horarios.</p>`;
+                console.error("Error cargando agenda:", err);
+                horariosContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        Error al cargar horarios. Por favor intenta de nuevo.
+                    </div>`;
+                mostrarAlerta('Error al cargar horarios', 'danger');
             })
             .finally(() => horariosSpinner.classList.add("d-none"));
+    }
+
+    // Cargar horarios al seleccionar doctor
+    doctorSelect.addEventListener("change", function () {
+        if (!this.value) return;
+        horariosCard.classList.remove("d-none");
+        cargarHorarios();
     });
 
+    // Botón de actualizar horarios
+    refreshBtn.addEventListener("click", cargarHorarios);
+
+    // Agendar cita
     agendarBtn.addEventListener("click", function () {
-        if (!selectedAgenda) return;
+        if (!selectedAgenda) {
+            mostrarAlerta('Por favor selecciona un horario', 'warning');
+            return;
+        }
 
         const doctorId = doctorSelect.value;
+        agendarBtn.disabled = true;
+        agendarBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agendando...';
+
+        // ✅ Convertir hora a formato HH:mm (sin segundos)
+        const horaFormateada = selectedAgenda.horaInicio.substring(0, 5);
 
         const cita = {
             pacienteId: parseInt(pacienteId),
             medicoId: parseInt(doctorId),
             especialidad: especialidadSelect.value,
             fecha: selectedAgenda.fecha,
-            hora: selectedAgenda.horaInicio,
-            estado: "PROGRAMADA"
+            hora: horaFormateada
         };
+
+        console.log('Enviando cita:', cita); // Para debugging
 
         fetch("/front/citas/agendar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(cita)
         })
-            .then(r => {
+            .then(async r => {
+                const responseText = await r.text();
+                console.log('Respuesta del servidor:', responseText); // Para debugging
+
+                let responseData;
+                try {
+                    responseData = responseText ? JSON.parse(responseText) : {};
+                } catch (e) {
+                    responseData = {};
+                }
+
                 if (r.ok) {
-                    alert("Cita agendada correctamente");
-                    doctorSelect.dispatchEvent(new Event("change"));
-                    agendarBtn.disabled = true;
+                    mostrarAlerta('✅ Cita agendada correctamente', 'success');
+                    selectedAgenda = null;
+                    // Recargar horarios automáticamente después de 1 segundo
+                    setTimeout(() => {
+                        cargarHorarios();
+                    }, 1000);
+                } else if (r.status === 409) {
+                    // Conflicto - horario ya no disponible
+                    mostrarAlerta('⚠️ ' + (responseData.mensaje || 'Este horario ya fue tomado por otro paciente'), 'warning');
+                    cargarHorarios(); // Recargar para mostrar actualización
+                } else if (r.status === 404) {
+                    mostrarAlerta('❌ ' + (responseData.mensaje || 'Horario no encontrado'), 'danger');
+                    cargarHorarios();
+                } else if (r.status === 400) {
+                    mostrarAlerta('❌ ' + (responseData.mensaje || 'Datos inválidos'), 'danger');
+                    agendarBtn.disabled = false;
+                } else if (r.status === 500) {
+                    mostrarAlerta('❌ Error en el servidor. Por favor intenta de nuevo', 'danger');
+                    agendarBtn.disabled = false;
                 } else {
-                    alert("Error al agendar la cita");
+                    mostrarAlerta('❌ Error al agendar la cita: ' + (responseData.mensaje || 'Error desconocido'), 'danger');
+                    agendarBtn.disabled = false;
                 }
             })
             .catch(err => {
-                console.error(err);
-                alert("Error al agendar la cita");
+                console.error('Error completo:', err);
+                mostrarAlerta('❌ Error de conexión al agendar la cita', 'danger');
+                agendarBtn.disabled = false;
+            })
+            .finally(() => {
+                agendarBtn.innerHTML = 'Agendar cita';
             });
     });
 </script>

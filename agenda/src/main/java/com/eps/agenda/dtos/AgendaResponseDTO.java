@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 @Data
 public class AgendaResponseDTO {
-    private Long id;  // Cambiado de agendaId a id
+    private Long id;
     private Long medicoId;
     private LocalDate fecha;
     private LocalTime horaInicio;
