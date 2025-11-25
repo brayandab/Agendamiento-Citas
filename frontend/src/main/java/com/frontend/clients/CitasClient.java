@@ -31,4 +31,19 @@ public interface CitasClient {
     @GetMapping("/citas/medico/{medicoId}")
     List<CitaDTO> buscarPorMedico(@PathVariable("medicoId") Long medicoId);
 
+
+     // Cancelar cita sin parámetros (versión simple)
+
+    @PutMapping("/citas/{id}/cancelar")
+    CitaDTO cancelarCita(@PathVariable("id") Long id);
+
+
+     // Cancelar cita con datos del paciente para notificación
+
+    @PutMapping("/citas/{id}/cancelar")
+    CitaDTO cancelarCitaConNotificacion(
+            @PathVariable("id") Long id,
+            @RequestParam("emailPaciente") String emailPaciente,
+            @RequestParam("nombrePaciente") String nombrePaciente
+    );
 }

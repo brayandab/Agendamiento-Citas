@@ -287,7 +287,11 @@
         agendarBtn.disabled = true;
         agendarBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agendando...';
 
-        // ✅ Convertir hora a formato HH:mm (sin segundos)
+        // ✅ Obtener nombre del doctor seleccionado
+        const doctorOption = doctorSelect.options[doctorSelect.selectedIndex];
+        const nombreDoctor = doctorOption.text;
+
+        // Convertir hora a formato HH:mm (sin segundos)
         const horaFormateada = selectedAgenda.horaInicio.substring(0, 5);
 
         const cita = {
@@ -295,7 +299,9 @@
             medicoId: parseInt(doctorId),
             especialidad: especialidadSelect.value,
             fecha: selectedAgenda.fecha,
-            hora: horaFormateada
+            hora: horaFormateada,
+            // Estos datos se obtendrán del servidor desde la sesión
+            // El backend buscará el email y nombre del paciente
         };
 
         console.log('Enviando cita:', cita); // Para debugging

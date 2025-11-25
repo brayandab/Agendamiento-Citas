@@ -27,6 +27,19 @@ public class CitaController {
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody CitaRequestDTO dto) {
         try {
+            // ✅ Validar que venga el email del paciente
+            if (dto.getEmailPaciente() == null || dto.getEmailPaciente().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("mensaje", "El email del paciente es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getNombrePaciente() == null || dto.getNombrePaciente().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("mensaje", "El nombre del paciente es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Cita guardada = citaService.guardarCita(dto);
             return ResponseEntity.ok(guardada);
 
@@ -66,10 +79,44 @@ public class CitaController {
         return citaService.buscarPorMedicoId(medicoId);
     }
 
+    /**
+     * ✅ MEJORADO: Cancelar cita con datos del paciente para notificación
+     */
     @PutMapping("/{id}/cancelar")
-    public ResponseEntity<Cita> cancelarCita(@PathVariable Long id) {
-        Cita cancelada = citaService.cancelarCita(id);
-        return ResponseEntity.ok(cancelada);
+    public ResponseEntity<?> cancelarCita(
+            @PathVariable Long id,
+            @RequestParam(required = false) String emailPaciente,
+            @RequestParam(required = false) String nombrePaciente
+    ) {
+        try {
+            Cita cancelada;
+
+            if (emailPaciente != null && nombrePaciente != null) {
+                // Si vienen los datos, enviar notificación
+                cancelada = citaService.cancelarCita(id, emailPaciente, nombrePaciente);
+            } else {
+                // Si no vienen, cancelar sin notificación específica
+                cancelada = citaService.cancelarCita(id);
+            }
+
+            return ResponseEntity.ok(cancelada);
+        } catch (RuntimeException e) {
+            String mensaje = e.getMessage();
+            HttpStatus status;
+
+            if (mensaje.contains("12 horas")) {
+                status = HttpStatus.BAD_REQUEST; // 400
+            } else if (mensaje.contains("no encontrada")) {
+                status = HttpStatus.NOT_FOUND; // 404
+            } else {
+                status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
+            }
+
+            Map<String, String> error = new HashMap<>();
+            error.put("mensaje", mensaje);
+
+            return ResponseEntity.status(status).body(error);
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -34,9 +34,8 @@ import java.util.List;
 )
 public interface UsuariosClient {
 
-    // ============================================================
+
     //  USUARIOS
-    // ============================================================
 
     @GetMapping("/usuarios")
     List<UsuarioDTO> listarUsuarios();
@@ -50,20 +49,14 @@ public interface UsuariosClient {
     @GetMapping("/usuarios/correo/{correo}")
     UsuarioDTO buscarPorCorreo(@PathVariable("correo") String correo);
 
-
-    // ============================================================
     //  LOGIN
-    // ============================================================
 
     @PostMapping("/usuarios/login")
     LoginResponseDTO login(@RequestBody LoginRequestDTO request);
 
 
-    // ============================================================
     //  DOCTORES
-    // ============================================================
 
-    // --- DOCTORES ---
     @GetMapping("/usuarios/doctores")
     List<DoctorDTO> listarDoctores();
 
@@ -83,9 +76,8 @@ public interface UsuariosClient {
     List<DoctorDTO> buscarDoctoresPorEspecialidad(@PathVariable("especialidad") String especialidad);
 
 
-    // ============================================================
+
     //  PACIENTES
-    // ============================================================
 
     @GetMapping("/usuarios/pacientes")
     List<PacienteDTO> listarPacientes();

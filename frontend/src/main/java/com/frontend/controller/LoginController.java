@@ -48,7 +48,7 @@ public class LoginController {
                     // Buscar doctor por usuarioId
                     DoctorDTO doctor = usuariosClient.buscarDoctorPorUsuarioId(response.getId());
                     if (doctor != null) {
-                        session.setAttribute("doctorId", doctor.getId()); // ✅ id correcto
+                        session.setAttribute("doctorId", doctor.getId());
                     } else {
                         model.addAttribute("error", "No se encontró doctor asociado");
                         return "login";

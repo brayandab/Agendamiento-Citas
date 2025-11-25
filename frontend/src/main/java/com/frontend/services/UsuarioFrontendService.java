@@ -34,8 +34,6 @@ public class UsuarioFrontendService {
         return usuarioClient.crearUsuario(dto);
     }
 
-    //Falta eliminar
-
 
     // ---------- DOCTORES ----------
 

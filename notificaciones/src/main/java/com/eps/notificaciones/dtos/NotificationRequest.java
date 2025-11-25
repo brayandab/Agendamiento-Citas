@@ -15,4 +15,11 @@ public class NotificationRequest {
     private String namePatient;
     private String apptDate;
     private NotificacionTipo tipo;
+
+
+    private Long citaId;
+    private Long pacienteId;
+    private String especialidad;
+    private String nombreDoctor;
+    private String hora;
 }

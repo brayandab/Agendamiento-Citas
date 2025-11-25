@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Mis Citas - MediPlus</title>
+  <title>Mis Citas | MediPlus</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="/img/Mediplus logo.png">
@@ -12,94 +12,283 @@
         background-color: #E0F2FF;
         min-height: 100vh;
         font-family: Arial, sans-serif;
-        color: #333;
-    }
-    .title {
-        text-align: center;
-        margin-bottom: 25px;
-        font-size: 28px;
-        font-weight: bold;
     }
 
-    /* espacio porque hay una barra lateral fija */
     .content {
         margin-left: 260px;
         padding: 40px;
     }
 
-    .card-table {
-        background: white;
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    .title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: bold;
     }
 
-    .btn-back {
-        margin-top: 20px;
+    .cita-card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+
+    .cita-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .badge-custom {
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+
+    .alert-floating {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .btn-cancelar {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-cancelar:hover:not(:disabled) {
+        background-color: #c82333;
+    }
+
+    .btn-cancelar:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .cita-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-label {
+        font-weight: bold;
+        color: #555;
+        min-width: 120px;
     }
   </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div th:insert="layout/sidebar-paciente :: sidebar"></div>
+<!-- Sidebar Paciente -->
+<div th:insert="~{layout/sidebar-paciente :: sidebar}"></div>
 
-<!-- CONTENIDO PRINCIPAL -->
+<!-- Contenido Principal -->
 <div class="content">
 
-  <div class="title">📅 Mis Citas Agendadas</div>
+  <div class="title">📅 Mis Citas Médicas</div>
 
   <div class="container">
 
-    <!-- TARJETA QUE CONTIENE LA TABLA -->
-    <div class="card-table">
+    <!-- Mensaje si no hay citas -->
+    <div th:if="${#lists.isEmpty(citas)}" class="alert alert-info text-center">
+      <h5>No tienes citas programadas</h5>
+      <p>Agenda tu primera cita para recibir atención médica</p>
+      <a href="/front/citas/agendar" class="btn btn-primary mt-3">Agendar Cita</a>
+    </div>
 
-      <!-- Si no hay citas -->
-      <div th:if="${#lists.isEmpty(citas)}" class="alert alert-info text-center">
-        No tienes citas agendadas actualmente.
+    <!-- Lista de Citas -->
+    <div th:each="cita : ${citas}" class="cita-card">
+      <div class="d-flex justify-content-between align-items-start">
+
+        <!-- Información de la cita -->
+        <div class="cita-info flex-grow-1">
+          <div class="info-row">
+            <span class="info-label">🏥 Especialidad:</span>
+            <span th:text="${cita.especialidad}"></span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">📅 Fecha:</span>
+            <span th:text="${cita.fecha}"></span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">🕐 Hora:</span>
+            <span th:text="${cita.hora}"></span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">📋 Estado:</span>
+            <span th:if="${cita.estado == 'PROGRAMADA'}" class="badge bg-success badge-custom">✅ Programada</span>
+            <span th:if="${cita.estado == 'CANCELADA'}" class="badge bg-danger badge-custom">❌ Cancelada</span>
+            <span th:if="${cita.estado == 'COMPLETADA'}" class="badge bg-info badge-custom">✔️ Completada</span>
+          </div>
+        </div>
+
+        <!-- Botón de cancelar -->
+        <div class="ms-3">
+          <button
+                  th:if="${cita.estado == 'PROGRAMADA'}"
+                  th:attr="data-cita-id=${cita.id}"
+                  class="btn btn-cancelar btnCancelar"
+                  onclick="confirmarCancelacion(this)">
+            Cancelar Cita
+          </button>
+
+          <span
+                  th:if="${cita.estado == 'CANCELADA'}"
+                  class="badge bg-secondary badge-custom">
+                        Cita cancelada
+                    </span>
+        </div>
       </div>
 
-      <!-- Tabla -->
-      <table th:if="${not #lists.isEmpty(citas)}" class="table table-striped table-hover mt-3">
-        <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Especialidad</th>
-          <th>Médico</th>
-          <th>Estado</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr th:each="cita : ${citas}">
-          <td th:text="${cita.id}"></td>
-          <td th:text="${cita.fecha}"></td>
-          <td th:text="${cita.hora}"></td>
-          <td th:text="${cita.especialidad}"></td>
-          <td th:text="${cita.medicoId}"></td>
-          <td>
-                        <span th:text="${cita.estado}"
-                              th:classappend="${cita.estado == 'CANCELADA'} ? 'badge bg-danger' : 'badge bg-success'">
-                        </span>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-
-      <div class="text-center btn-back">
-        <a href="/home/paciente" class="btn btn-secondary px-4">Volver</a>
+      <!-- Mensaje de advertencia para citas próximas -->
+      <div th:if="${cita.estado == 'PROGRAMADA'}" class="alert alert-warning mt-3 mb-0">
+        <small>
+          ⚠️ <strong>Importante:</strong> Solo puedes cancelar con al menos 12 horas de anticipación.
+          Recibirás un correo de confirmación al cancelar.
+        </small>
       </div>
+    </div>
 
-
-
+    <!-- Botón volver -->
+    <div class="text-center mt-4">
+      <a href="/home/paciente" class="btn btn-secondary px-4">Volver al Inicio</a>
     </div>
 
   </div>
 
 </div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">⚠️ Confirmar Cancelación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+        <div class="alert alert-info">
+          <small>
+            📧 Se enviará un correo de confirmación de cancelación a tu email registrado.
+          </small>
+        </div>
+        <p class="text-muted">
+          <small>Al cancelar, el horario quedará disponible para otros pacientes.</small>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener cita</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarCancelacion">Sí, cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  let citaIdACancelar = null;
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+
+  // Función para mostrar alertas flotantes
+  function mostrarAlerta(mensaje, tipo = 'success') {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert alert-${tipo} alert-dismissible fade show alert-floating`;
+      alertDiv.innerHTML = `
+          ${mensaje}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(alertDiv);
+
+      setTimeout(() => {
+          alertDiv.remove();
+      }, 6000);
+  }
+
+  // Confirmar cancelación
+  function confirmarCancelacion(button) {
+      citaIdACancelar = button.getAttribute('data-cita-id');
+      modal.show();
+  }
+
+  // Ejecutar cancelación
+  document.getElementById('btnConfirmarCancelacion').addEventListener('click', function() {
+      if (!citaIdACancelar) return;
+
+      const btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Cancelando...';
+
+      fetch(`/front/citas/${citaIdACancelar}/cancelar`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(async response => {
+          const data = await response.json();
+
+          if (response.ok) {
+              modal.hide();
+              mostrarAlerta('✅ ' + data.mensaje, 'success');
+
+              // Recargar la página después de 2 segundos
+              setTimeout(() => {
+                  window.location.reload();
+              }, 2000);
+          } else {
+              modal.hide();
+              mostrarAlerta('❌ ' + (data.mensaje || 'Error al cancelar la cita'), 'danger');
+              btn.disabled = false;
+              btn.innerHTML = 'Sí, cancelar';
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          modal.hide();
+          mostrarAlerta('❌ Error de conexión al cancelar la cita', 'danger');
+          btn.disabled = false;
+          btn.innerHTML = 'Sí, cancelar';
+      });
+  });
+
+  // Resetear al cerrar el modal
+  document.getElementById('modalConfirmacion').addEventListener('hidden.bs.modal', function () {
+      citaIdACancelar = null;
+      document.getElementById('btnConfirmarCancelacion').disabled = false;
+      document.getElementById('btnConfirmarCancelacion').innerHTML = 'Sí, cancelar';
+  });
+</script>
 
 </body>
 </html>

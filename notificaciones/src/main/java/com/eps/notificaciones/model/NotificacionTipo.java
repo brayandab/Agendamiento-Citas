@@ -5,3 +5,4 @@ public enum NotificacionTipo {
     CANCELACION_CITA,
     AGENDAMIENTO_CITA
 }
+
