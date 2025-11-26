@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+
 import java.util.List;
 
 @RestController
@@ -74,5 +76,15 @@ public class UsuarioController {
 
         return ResponseEntity.ok(response);
     }
+    @PutMapping("/{id}")   // <- CORREGIDO
+    public ResponseEntity<Usuario> actualizarUsuario(
+            @PathVariable Long id,
+            @RequestBody UsuarioRequestDTO dto) {
+
+        Usuario actualizado = usuarioService.actualizarUsuario(id, dto);
+        return ResponseEntity.ok(actualizado);
+    }
+
+
 
 }

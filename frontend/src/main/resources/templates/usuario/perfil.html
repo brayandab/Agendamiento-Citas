@@ -11,60 +11,35 @@
 
   <style>
     body {
-        background-color: #E0F2FF;
-        min-height: 100vh;
-        padding: 40px;
-        color: white;
-        font-family: 'Arial', sans-serif;
+      background-color: #E0F2FF;
+      min-height: 100vh;
+      padding: 40px;
+      color: white;
+      font-family: 'Arial', sans-serif;
     }
     .title {
-        text-align: center;
-        margin-bottom: 40px;
-        font-size: 32px;
-        font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+      font-weight: bold;
     }
     .profile-card {
-        border-radius: 20px;
-        background: #ffffff;
-        padding: 35px;
-        color: #333;
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      background: #ffffff;
+      padding: 35px;
+      color: #333;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
     }
     .profile-header {
-        font-size: 26px;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #4f46e5;
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #4f46e5;
     }
-    .profile-row {
-        margin-bottom: 15px;
-    }
-    .label {
-        font-weight: bold;
-        color: #555;
-    }
-    .value {
-        color: #222;
-    }
-    .edit-btn {
-        background-color: #4f46e5;
-        color: white;
-        padding: 12px 25px;
-        border-radius: 10px;
-        text-decoration: none;
-        transition: .3s;
-    }
-    .edit-btn:hover {
-        background-color: #3730a3;
-    }
-
   </style>
 </head>
 
 <body>
-
-<!-- Sidebar mal funcionamiento-->
-<!--<div th:insert="~{layout/sidebar-admin :: sidebar}"></div>-->
 
 <div class="title">👤 Mi Perfil</div>
 
@@ -76,43 +51,73 @@
 
         <div class="profile-header">Información Personal</div>
 
-        <div class="profile-row">
-          <span class="label">Nombre:</span>
-          <span class="value" th:text="${usuario.nombre}"></span>
-        </div>
+        <form th:action="@{/front/usuario/perfil/editar}" method="post" id="perfilForm">
 
-        <div class="profile-row">
-          <span class="label">Apellido:</span>
-          <span class="value" th:text="${usuario.apellido}"></span>
-        </div>
+          <input type="hidden" name="id" th:value="${usuario.id}"/>
 
-        <div class="profile-row">
-          <span class="label">Correo:</span>
-          <span class="value" th:text="${usuario.correo}"></span>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre:</label>
+            <input type="text" class="form-control" name="nombre"
+                   th:value="${usuario.nombre}" disabled>
+          </div>
 
-        <div class="profile-row">
-          <span class="label">Rol:</span>
-          <span class="value" th:text="${usuario.rol}"></span>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Apellido:</label>
+            <input type="text" class="form-control" name="apellido"
+                   th:value="${usuario.apellido}" disabled>
+          </div>
 
-        <div class="profile-row">
-          <span class="label">Estado:</span>
-          <span class="value" th:text="${usuario.activo ? 'Activo' : 'Inactivo'}"></span>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Correo:</label>
+            <input type="email" class="form-control" name="correo"
+                   th:value="${usuario.correo}" readonly>
+          </div>
 
-        <hr>
+          <div class="mb-3">
+            <label class="form-label">Rol:</label>
+            <input type="text" class="form-control" th:value="${usuario.rol}" disabled>
+          </div>
 
-        <div class="text-center mt-4">
-          <a href="/perfil/editar" class="edit-btn">✏️ Editar Perfil</a>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Estado:</label>
+            <input type="text" class="form-control"
+                   th:value="${usuario.activo ? 'Activo' : 'Inactivo'}" disabled>
+          </div>
 
+          <!-- BOTONES -->
+          <div class="text-center mt-4">
+            <button type="button" id="btnEditar" class="btn btn-primary">✏️ Modificar</button>
+            <button type="submit" id="btnGuardar" class="btn btn-success d-none">✔ Guardar</button>
+            <button type="button" id="btnCancelar" class="btn btn-danger d-none">✖ Cancelar</button>
+          </div>
+
+        </form>
 
       </div>
+
 
     </div>
   </div>
 </div>
+
+<script>
+  const btnEditar = document.getElementById("btnEditar");
+  const btnGuardar = document.getElementById("btnGuardar");
+  const btnCancelar = document.getElementById("btnCancelar");
+
+  const inputs = document.querySelectorAll("input:not([type=hidden])");
+
+  btnEditar.addEventListener("click", () => {
+    inputs.forEach(i => i.disabled = false);
+    btnEditar.classList.add("d-none");
+    btnGuardar.classList.remove("d-none");
+    btnCancelar.classList.remove("d-none");
+  });
+
+  btnCancelar.addEventListener("click", () => {
+    location.reload(); // Vuelve todo al estado original
+  });
+</script>
 
 </body>
 </html>

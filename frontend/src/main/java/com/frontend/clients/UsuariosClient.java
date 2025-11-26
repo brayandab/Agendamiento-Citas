@@ -46,6 +46,12 @@ public interface UsuariosClient {
     @PostMapping("/usuarios")
     UsuarioDTO crearUsuario(@RequestBody UsuarioRequestDTO dto);
 
+    @PutMapping("/usuarios/{id}")
+    UsuarioDTO actualizar(@PathVariable("id") Long id, @RequestBody UsuarioDTO usuarioDTO);
+
+
+
+
     @GetMapping("/usuarios/correo/{correo}")
     UsuarioDTO buscarPorCorreo(@PathVariable("correo") String correo);
 
