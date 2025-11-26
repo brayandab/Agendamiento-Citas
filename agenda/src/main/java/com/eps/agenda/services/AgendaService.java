@@ -17,6 +17,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Servicio encargado de manejar toda la lógica relacionada con la agenda:
+ * creación de horarios, validación, bloqueo de franjas y consulta de información
+ * con datos adicionales del médico utilizando otro microservicio.
+ */
 @Service
 public class AgendaService {
 
@@ -28,14 +33,23 @@ public class AgendaService {
 
     private final String USUARIOS_URL = "http://localhost:8081/usuarios/doctores/";
 
+    /**
+     * Devuelve todas las agendas registradas.
+     */
     public List<Agenda> listar() {
         return agendaRepository.findAll();
     }
 
+    /**
+     * Busca una agenda por ID.
+     */
     public Optional<Agenda> obtenerPorId(Long id) {
         return agendaRepository.findById(id);
     }
 
+    /**
+     * Crea una agenda individual.
+     */
     public Agenda crear(AgendarCreateDTO dto) {
         Agenda agenda = new Agenda();
         agenda.setMedicoId(dto.getMedicoId());
@@ -46,6 +60,9 @@ public class AgendaService {
         return agendaRepository.save(agenda);
     }
 
+    /**
+     * Actualiza una agenda existente por ID.
+     */
     public Agenda actualizar(Long id, AgendarCreateDTO dto) {
         Agenda agenda = agendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agenda no encontrada con ID: " + id));
@@ -59,6 +76,9 @@ public class AgendaService {
         return agendaRepository.save(agenda);
     }
 
+    /**
+     * Elimina una agenda por ID.
+     */
     public void eliminar(Long id) {
         if (!agendaRepository.existsById(id)) {
             throw new RuntimeException("No se encontró agenda con ID: " + id);
@@ -66,6 +86,10 @@ public class AgendaService {
         agendaRepository.deleteById(id);
     }
 
+    /**
+     * Crea varias franjas de 1 hora entre una horaInicio y horaFin.
+     * Ejemplo: 8:00–12:00 genera 8-9, 9-10, 10-11, 11-12.
+     */
     public List<Agenda> crearFranjas(AgendarCreateDTO dto) {
         LocalDate fecha = dto.getFecha();
         LocalTime inicio = dto.getHoraInicio();
@@ -82,6 +106,7 @@ public class AgendaService {
         List<Agenda> creadas = new ArrayList<>();
         LocalTime cursor = inicio;
 
+        // Generación de franjas de 1 hora
         while (cursor.plusHours(1).compareTo(fin) <= 0) {
             Agenda slot = new Agenda();
             slot.setMedicoId(dto.getMedicoId());
@@ -98,6 +123,10 @@ public class AgendaService {
         return creadas;
     }
 
+    /**
+     * Devuelve una lista de agendas incluyendo datos del médico
+     * (consumidos desde otro microservicio).
+     */
     public List<AgendaResponseDTO> listarConDoctor() {
         List<Agenda> agendas = agendaRepository.findAll();
         List<AgendaResponseDTO> resultado = new ArrayList<>();
@@ -107,7 +136,7 @@ public class AgendaService {
             try {
                 doctor = restTemplate.getForObject(USUARIOS_URL + a.getMedicoId(), DoctorDTO.class);
             } catch (Exception e) {
-                // ignorar si falla la llamada
+                // Si falla el microservicio, simplemente no se agrega la info del doctor
             }
 
             AgendaResponseDTO dto = new AgendaResponseDTO();
@@ -124,6 +153,9 @@ public class AgendaService {
         return resultado;
     }
 
+    /**
+     * Lista solo las agendas disponibles de un médico.
+     */
     public List<AgendaResponseDTO> listarPorMedico(Long medicoId) {
         return listarConDoctor()
                 .stream()
@@ -131,6 +163,9 @@ public class AgendaService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Lista todas las agendas de un médico sin consultar al microservicio de usuarios.
+     */
     public List<AgendaResponseDTO> findByDoctorId(Long doctorId) {
         List<Agenda> agendas = agendaRepository.findByMedicoId(doctorId);
 
@@ -146,6 +181,9 @@ public class AgendaService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Lista las agendas filtrando por médico y fecha.
+     */
     public List<AgendaResponseDTO> listarPorMedicoYFecha(Long doctorId, LocalDate fecha) {
         List<Agenda> agendas = agendaRepository.findByMedicoIdAndFecha(doctorId, fecha);
 
@@ -161,27 +199,29 @@ public class AgendaService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Bloquea una agenda específica por ID usando transacción para evitar conflictos.
+     * (Se usa cuando el paciente empieza un proceso de agendamiento).
+     */
     @Transactional
     public Agenda bloquearAgenda(Long id) {
-        // 1. Obtener la agenda con lock pesimista (evita race conditions)
         Agenda agenda = agendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agenda no encontrada con ID: " + id));
 
-        // 2. Validar disponibilidad
         if (!Boolean.TRUE.equals(agenda.getDisponible())) {
             throw new RuntimeException("Esta agenda ya está ocupada");
         }
 
-        // 3. Bloquear la agenda
         agenda.setDisponible(false);
-
-        // 4. Guardar y retornar
         return agendaRepository.save(agenda);
     }
 
+    /**
+     * Busca y bloquea una franja (doctor + fecha + hora) aplicando un lock pesimista directo.
+     * Este método se usa para evitar que dos usuarios reserven la misma hora simultáneamente.
+     */
     @Transactional
     public Agenda buscarYBloquearAgenda(Long medicoId, LocalDate fecha, LocalTime hora) {
-        // Buscar la agenda específica CON LOCK PESIMISTA
         Optional<Agenda> agendaOpt = agendaRepository.findByMedicoIdAndFechaAndHoraInicioWithLock(
                 medicoId, fecha, hora
         );
@@ -192,16 +232,17 @@ public class AgendaService {
 
         Agenda agenda = agendaOpt.get();
 
-
         if (!Boolean.TRUE.equals(agenda.getDisponible())) {
             throw new RuntimeException("Este horario ya no está disponible");
         }
-
 
         agenda.setDisponible(false);
         return agendaRepository.save(agenda);
     }
 
+    /**
+     * Marca nuevamente una franja como disponible.
+     */
     @Transactional
     public Agenda desbloquearAgenda(Long id) {
         Agenda agenda = agendaRepository.findById(id)
@@ -211,6 +252,9 @@ public class AgendaService {
         return agendaRepository.save(agenda);
     }
 
+    /**
+     * Busca una agenda puntual sin bloquearla (solo para validación rápida).
+     */
     public Optional<Agenda> buscarYValidarDisponibilidad(Long medicoId, LocalDate fecha, LocalTime hora) {
         return agendaRepository.findByMedicoIdAndFechaAndHoraInicio(medicoId, fecha, hora);
     }
