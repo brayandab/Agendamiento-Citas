@@ -32,6 +32,7 @@ public class LoginController {
 
             if (response == null || response.getRol() == null) {
                 model.addAttribute("error", "Credenciales inválidas");
+                model.addAttribute("usuario", new UsuarioRequestDTO());
                 return "login";
             }
 
@@ -40,17 +41,18 @@ public class LoginController {
             // Guardamos usuarioId en sesión
             session.setAttribute("usuarioId", response.getId());
             session.setAttribute("usuarioLogueado", response);
+
             switch (rol) {
                 case "ADMIN":
                     return "redirect:/home/admin?rol=ADMIN";
 
                 case "DOCTOR":
-                    // Buscar doctor por usuarioId
                     DoctorDTO doctor = usuariosClient.buscarDoctorPorUsuarioId(response.getId());
                     if (doctor != null) {
                         session.setAttribute("doctorId", doctor.getId());
                     } else {
                         model.addAttribute("error", "No se encontró doctor asociado");
+                        model.addAttribute("usuario", new UsuarioRequestDTO());
                         return "login";
                     }
                     return "redirect:/home/doctor?rol=DOCTOR";
@@ -60,11 +62,13 @@ public class LoginController {
 
                 default:
                     model.addAttribute("error", "Rol inválido");
+                    model.addAttribute("usuario", new UsuarioRequestDTO());
                     return "login";
             }
 
         } catch (Exception e) {
             model.addAttribute("error", "Correo o contraseña incorrectos");
+            model.addAttribute("usuario", new UsuarioRequestDTO());
             return "login";
         }
     }

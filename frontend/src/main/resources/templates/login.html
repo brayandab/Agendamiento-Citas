@@ -215,6 +215,20 @@
         .container.toggle .welcome-sign-up{
             transform: translateX(-100%);
         }
+
+        .error-msg {
+            padding: 8px 12px;
+            display: flex;
+            color: red;
+            margin-bottom: 10px;
+            border: 2px solid red;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 10px red;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffdfd4;
+        }
     </style>
 </head>
 <body>
@@ -224,6 +238,7 @@
         <form class="sign-in" th:action="@{/login}" method="post">
             <h2>Iniciar Sesión</h2>
             <span>Use su correo y contraseña</span>
+            <div th:if="${error}" class="error-msg" th:text="${error}"></div>
             <div class="container-input">
                 <ion-icon name="mail-outline"></ion-icon>
                 <input type='email' placeholder="Correo Electrónico" name="correo" required>
@@ -239,7 +254,6 @@
                 <ion-icon name="logo-google"></ion-icon>
                 Iniciar sesión con Google
             </a>
-            <div th:if="${error}" class="error-msg" th:text="${error}"></div>
         </form>
     </div>
     <div class="container-form">
