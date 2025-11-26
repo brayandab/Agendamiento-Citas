@@ -20,6 +20,8 @@
             margin-bottom: 40px;
             font-size: 32px;
             font-weight: bold;
+            color: #0a3d62; /* Azul oscuro visible */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* Le da contraste */
         }
         .card-option {
             border-radius: 15px;
@@ -49,7 +51,9 @@
 
 <div th:insert="~{layout/sidebar-doctor :: sidebar}"></div>
 
-<div class="title">🩺 Bienvenido Doctor</div>
+<div class="title">
+    🩺 Bienvenido Dr(a). <span th:text="${usuario.nombre + ' ' + usuario.apellido}"></span>
+</div>
 
 <div class="container mt-4">
     <div class="row g-4">
