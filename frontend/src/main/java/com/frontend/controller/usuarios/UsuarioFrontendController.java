@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/front/usuarios")
 public class UsuarioFrontendController {
@@ -18,7 +20,34 @@ public class UsuarioFrontendController {
     @GetMapping("/crear")
     public String mostrarFormularioCrear(Model model) {
         model.addAttribute("usuario", new UsuarioRequestDTO());
-        return "usuario/CrearUsuario"; // EXACTO A TU ESTRUCTURA
+        return "usuario/CrearUsuario";
+    }
+
+    @GetMapping("")
+    public String listarUsuarios(Model model) {
+        model.addAttribute("usuarios", client.listarUsuarios());
+        return "usuario/admin/Gestion-Usuarios";
+    }
+
+    @GetMapping("/editar/{id}")
+    public String editarUsuario(@PathVariable Long id, Model model) {
+        var usuario = client.findById(id);
+
+        model.addAttribute("usuarios", client.listarUsuarios());
+        model.addAttribute("usuarioEditar", usuario);
+        model.addAttribute("mostrarSidebar", true);
+        model.addAttribute("roles", List.of("ADMIN", "DOCTOR", "PACIENTE")); // ← Roles disponibles
+
+        return "usuario/admin/Gestion-Usuarios";
+    }
+
+
+    @PostMapping("/editar/{id}")
+    public String actualizarUsuario(@PathVariable Long id,
+                                    @ModelAttribute UsuarioDTO usuario) {
+
+        client.actualizar(id, usuario);
+        return "redirect:/front/usuarios";
     }
 
     @PostMapping("/crear")
@@ -26,9 +55,7 @@ public class UsuarioFrontendController {
 
         UsuarioDTO usuarioCreado = client.crearUsuario(dto);
 
-        // Guardar id y correo en redirect
         Long idUsuario = usuarioCreado.getId();
-        String correo = usuarioCreado.getCorreo();
         String rol = usuarioCreado.getRol().toUpperCase();
 
         if (rol.equals("PACIENTE")) {
@@ -40,7 +67,6 @@ public class UsuarioFrontendController {
 
         return "redirect:/front/usuarios";
     }
-
 
     @GetMapping("/{id}")
     public String detalle(@PathVariable Long id, Model model) {

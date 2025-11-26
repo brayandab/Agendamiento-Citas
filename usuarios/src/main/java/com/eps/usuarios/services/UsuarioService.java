@@ -107,13 +107,13 @@ public class UsuarioService {
      * @throws RuntimeException si no se encuentra el usuario
      */
     public Usuario actualizarUsuario(Long id, UsuarioRequestDTO dto) {
-
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
         usuario.setCorreo(dto.getCorreo().trim().toLowerCase());
+        usuario.setRol(dto.getRol()); // ← Importante
 
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
             usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -121,6 +121,7 @@ public class UsuarioService {
 
         return usuarioRepository.save(usuario);
     }
+
 
 }
 
