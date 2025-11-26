@@ -21,6 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador para la gestión de citas en el frontend.
+ * Permite a pacientes y doctores crear, consultar y cancelar citas.
+ * Interactúa con los microservicios de usuarios y citas mediante FeignClient.
+ */
 @Controller
 @RequestMapping("/front/citas")
 public class CitaController {
@@ -31,9 +36,15 @@ public class CitaController {
     @Autowired
     private CitasClient citasClient;
 
+    // ------------------- FORMULARIO AGENDAR CITA -------------------
 
-    // AGENDAR CITA - FORMULARIO
-
+    /**
+     * Muestra el formulario para que un paciente agende una cita.
+     *
+     * @param model   Modelo Thymeleaf para pasar atributos a la vista
+     * @param session Sesión HTTP para obtener el ID del usuario logueado
+     * @return Nombre de la plantilla Thymeleaf "agendar-cita" o redirección a login
+     */
     @GetMapping("/agendar")
     public String agendar(Model model, HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
@@ -46,28 +57,37 @@ public class CitaController {
         return "agendar-cita";
     }
 
+    // ------------------- CONSULTA DE DOCTORES -------------------
 
-    //OBTENER DOCTORES POR ESPECIALIDAD
-
+    /**
+     * Obtiene los doctores según la especialidad indicada.
+     *
+     * @param especialidad Nombre de la especialidad
+     * @return Lista de DoctorDTO; vacía si no se especifica la especialidad
+     */
     @GetMapping("/doctores")
     @ResponseBody
     public List<DoctorDTO> listarDoctores(@RequestParam String especialidad) {
         if (especialidad == null || especialidad.isEmpty()) {
             return Collections.emptyList();
         }
-
-        List<DoctorDTO> doctores = usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
-        return doctores;
+        return usuariosClient.buscarDoctoresPorEspecialidad(especialidad);
     }
 
+    // ------------------- CREACIÓN DE CITA -------------------
 
-    // CREAR CITA CON NOTIFICACIÓN (MEJORADO)
-
+    /**
+     * Crea una cita para un paciente con notificación por correo.
+     * Se obtienen los datos del paciente y del doctor, y se envía al microservicio de citas.
+     *
+     * @param cita    DTO con información de la cita
+     * @param session Sesión HTTP para obtener ID del paciente
+     * @return ResponseEntity con la cita creada o mensaje de error
+     */
     @PostMapping("/agendar")
     @ResponseBody
     public ResponseEntity<?> crearCita(@RequestBody CitaRequestDTO cita, HttpSession session) {
         try {
-            // Obtener ID del usuario desde la sesión
             Long usuarioId = (Long) session.getAttribute("usuarioId");
 
             if (usuarioId == null) {
@@ -76,20 +96,16 @@ public class CitaController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
             }
 
-            // Obtener datos completos del paciente desde el microservicio
             UsuarioDTO usuario = usuariosClient.findById(usuarioId);
-
             if (usuario == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("mensaje", "No se encontró información del usuario");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
             }
 
-            //Establecer datos del paciente en el DTO
             cita.setEmailPaciente(usuario.getCorreo());
             cita.setNombrePaciente(usuario.getNombre() + " " + usuario.getApellido());
 
-            // Obtener nombre del doctor
             try {
                 DoctorDTO doctor = usuariosClient.buscarDoctorPorId(cita.getMedicoId());
                 if (doctor != null && doctor.getUsuario() != null) {
@@ -99,10 +115,8 @@ public class CitaController {
                 }
             } catch (Exception e) {
                 System.err.println("Error al obtener nombre del doctor: " + e.getMessage());
-
             }
 
-            // Crear la cita (el backend enviará la notificación)
             CitaDTO citaCreada = citasClient.crearCita(cita);
             return ResponseEntity.ok(citaCreada);
 
@@ -126,9 +140,15 @@ public class CitaController {
         }
     }
 
+    // ------------------- CONSULTA DE CITAS PACIENTE -------------------
 
-    // PACIENTE — VER SUS PROPIAS CITAS
-
+    /**
+     * Muestra todas las citas de un paciente logueado.
+     *
+     * @param model   Modelo Thymeleaf
+     * @param session Sesión HTTP para obtener ID del paciente
+     * @return Plantilla "mis-citas" o redirección a login
+     */
     @GetMapping("/mis-citas")
     public String verMisCitasPaciente(Model model, HttpSession session) {
         Long usuarioId = (Long) session.getAttribute("usuarioId");
@@ -143,14 +163,19 @@ public class CitaController {
         return "usuario/paciente/mis-citas";
     }
 
+    // ------------------- CANCELACIÓN DE CITA -------------------
 
-    // CANCELAR CITA CON VALIDACIÓN Y NOTIFICACIÓN
-
+    /**
+     * Cancela una cita del paciente con validación de sesión y notificación.
+     *
+     * @param id      ID de la cita
+     * @param session Sesión HTTP para validar paciente
+     * @return ResponseEntity con mensaje de éxito o error
+     */
     @PostMapping("/{id}/cancelar")
     @ResponseBody
     public ResponseEntity<?> cancelarCita(@PathVariable Long id, HttpSession session) {
         try {
-            // Verificar sesión
             Long usuarioId = (Long) session.getAttribute("usuarioId");
 
             if (usuarioId == null) {
@@ -159,7 +184,6 @@ public class CitaController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
             }
 
-            //Cancelar la cita (el backend enviará notificación)
             citasClient.cancelarCita(id);
 
             Map<String, String> response = new HashMap<>();
@@ -182,9 +206,15 @@ public class CitaController {
         }
     }
 
+    // ------------------- CONSULTA DE CITAS DOCTOR -------------------
 
-    //DOCTOR — VER SUS CITAS
-
+    /**
+     * Muestra todas las citas asignadas a un doctor logueado.
+     *
+     * @param model   Modelo Thymeleaf
+     * @param session Sesión HTTP para obtener ID del doctor
+     * @return Plantilla "mis-citas-doctor" o redirección a login
+     */
     @GetMapping("/mis-citas-doctor")
     public String verMisCitasDoctor(Model model, HttpSession session) {
         Long doctorId = (Long) session.getAttribute("doctorId");
@@ -198,4 +228,5 @@ public class CitaController {
 
         return "usuario/doctor/mis-citas-doctor";
     }
+
 }
