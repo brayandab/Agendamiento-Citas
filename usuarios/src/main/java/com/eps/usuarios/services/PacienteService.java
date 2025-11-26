@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Servicio encargado de la lógica de negocio relacionada con la entidad {@link Paciente}.
+ * <p>
+ * Permite crear pacientes, listarlos, eliminarlos y gestionar la relación 1 a 1
+ * entre Paciente y Usuario.
+ */
 @Service
 public class PacienteService {
 
@@ -19,17 +25,33 @@ public class PacienteService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    //  Listar todos los pacientes
+    /**
+     * Obtiene todos los pacientes registrados en el sistema.
+     *
+     * @return lista de objetos {@link Paciente}
+     */
     public List<Paciente> listarPacientes() {
         return pacienteRepository.findAll();
     }
 
-    //  Guardar un paciente directamente
+    /**
+     * Guarda un paciente directamente en la base de datos.
+     *
+     * @param paciente entidad paciente ya construida
+     * @return el paciente persistido
+     */
     public Paciente guardarPaciente(Paciente paciente) {
         return pacienteRepository.save(paciente);
     }
 
-    //  Crear paciente a partir del DTO
+    /**
+     * Crea un nuevo paciente a partir de un DTO.
+     * <p>
+     * También valida que el usuario asociado exista previamente.
+     *
+     * @param dto datos necesarios para crear el paciente
+     * @return el paciente creado y almacenado en la base de datos
+     */
     public Paciente crearPaciente(PacienteRequestDTO dto) {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -45,22 +67,38 @@ public class PacienteService {
         return pacienteRepository.save(paciente);
     }
 
-    //  Buscar un paciente por ID
+    /**
+     * Busca un paciente por su ID.
+     *
+     * @param id identificador del paciente
+     * @return el paciente encontrado
+     * @throws RuntimeException si no existe un paciente con ese ID
+     */
     public Paciente buscarPorId(Long id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
     }
 
-    //  Eliminar paciente (y su usuario asociado automáticamente)
+    /**
+     * Elimina un paciente por su ID.
+     * <p>
+     * Gracias al orphanRemoval=true en la entidad, el usuario asociado se elimina automáticamente.
+     *
+     * @param id identificador del paciente a eliminar
+     * @throws RuntimeException si no existe un paciente con ese ID
+     */
     public void eliminarPorId(Long id) {
         Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
         pacienteRepository.delete(paciente);
-        System.out.println(" Paciente y usuario eliminados correctamente con ID: " + id);
+        System.out.println("Paciente y usuario eliminados correctamente con ID: " + id);
     }
 
-    /*public Paciente buscarPorCorreo(String correo) {
-        return pacienteRepository.buscarPorCorreo(correo);
-    }*/
+    /*
+     * Método pendiente de implementación si decides agregar búsqueda por correo.
+     * public Paciente buscarPorCorreo(String correo) {
+     *     return pacienteRepository.buscarPorCorreo(correo);
+     * }
+     */
 }
